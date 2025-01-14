@@ -11,7 +11,7 @@ ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 WORKDIR /app
 
 # Install dependencies
-COPY package.json ./
+COPY ./frontend/package.json ./
 RUN npm install
 
 # Copy application source code and build the app
