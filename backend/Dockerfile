@@ -5,11 +5,11 @@ FROM node:alpine3.18
 WORKDIR /app
 
 # Install dependencies
-COPY package.json ./
+COPY ./backend/package.json ./
 RUN npm install
 
 # Copy application source code
-COPY . .
+COPY ./backend ./
 
 # Expose the backend port
 EXPOSE 4000
