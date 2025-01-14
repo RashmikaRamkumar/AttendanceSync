@@ -15,7 +15,7 @@ COPY ./frontend/package.json ./
 RUN npm install
 
 # Copy application source code and build the app
-COPY . .
+COPY ./frontend ./
 RUN npm run build
 
 # Stage 2: Serve the React application with Nginx
