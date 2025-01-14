@@ -3,7 +3,7 @@ name: Deploy Backend Application
 on: 
   push:
     branches:
-      - mern-ec2-docker
+      - awsDeploy
 
 jobs:
   build:
@@ -14,7 +14,8 @@ jobs:
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}     
       - name: Build Docker Image
-        run: docker build -t rashmika007/attendancesync-server .
+        run: docker build -t rashmika007/attendancesync-server \
+            -f ./backend/Dockerfile .
       - name: Publish Image to Docker Hub
         run: docker push rashmika007/attendancesync-server:latest 
  
@@ -33,5 +34,5 @@ jobs:
             -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET_KEY }}' \
             -e JWT_EXPIRE='${{ secrets.JWT_EXPIRE }}' \
             -e COOKIE_EXPIRE='${{ secrets.COOKIE_EXPIRE }}' \
-            -e MONGO_URI='${{ secrets.MONGO_URI }}' \
+            -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' \
             rashmika007/attendancesync-server:latest
