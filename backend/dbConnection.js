@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 // MongoDB URI from MongoDB Atlas
-const uri = "mongodb+srv://krrashmika2004:${process.env.MONGO_PASSWORD}@cluster0.sfj4f.mongodb.net/AI_Attendence?retryWrites=true";
+const uri = `mongodb+srv://deployUser:${process.env.MONGO_PASSWORD}@cluster0.sfj4f.mongodb.net/AI_Attendence?retryWrites=true`;
 
 // Connect to MongoDB
 const connectDB = async () => {
