@@ -19,6 +19,9 @@ const corsOptions = {
   credentials: true, // Allow cookies and credentials
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 };
+app.get('/', (req, res) => {
+    res.send('Hello World, from express');
+})
 
 // Apply CORS middleware globally
 app.use(cors(corsOptions));
