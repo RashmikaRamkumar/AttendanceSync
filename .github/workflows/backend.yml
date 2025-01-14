@@ -14,7 +14,8 @@ jobs:
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}     
       - name: Build Docker Image
-        run: docker build -t rashmika007/attendancesync-server -f ./backend/Dockerfile .
+        run: docker build -t rashmika007/attendancesync-server 
+        -f ./backend/Dockerfile .
       - name: Publish Image to Docker Hub
         run: docker push rashmika007/attendancesync-server:latest 
  
