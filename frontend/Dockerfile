@@ -28,7 +28,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf *
 
 # Copy build output from the previous stage
-COPY --from=build /app/build .
+COPY --from=build /app/dist . 
 
 # Expose port 80
 EXPOSE 80
