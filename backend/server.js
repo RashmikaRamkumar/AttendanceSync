@@ -13,11 +13,16 @@ require('dotenv').config(); // Load environment variables from .env file
 // Middleware
 // CORS configuration
 const corsOptions = {
-  origin: 'https://ai-attendance-client.vercel.app', // Your client URL
+  origin: 'http://13.60.10.245:5173',
+  //origin: 'https://ai-attendance-client.vercel.app', 
+  //origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   credentials: true, // Allow cookies and credentials
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 };
+app.get('/', (req, res) => {
+    res.send('Hello World, from express');
+})
 
 // Apply CORS middleware globally
 app.use(cors(corsOptions));
