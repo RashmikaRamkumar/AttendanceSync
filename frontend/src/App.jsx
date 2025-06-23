@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Route, Routes , Navigate} from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 import Navbar from "./components/Navbar";
@@ -7,6 +12,7 @@ import Sidebar from "./components/Sidebar";
 import HomePage from "./components/HomePage";
 import DutyPage from "./components/DutyPage";
 import Absentees from "./components/Absentees";
+import UpdateSuperPacc from "./components/UpdateSuperpacc";
 import MessagePage from "./components/MessagePage";
 import ViewAttendance from "./components/ViewAttendance";
 import GenerateMessage from "./components/GenerateMessage";
@@ -19,6 +25,17 @@ import NotFound from "./components/NotFound"; // Import the NotFound component
 import UpdateAttendace from "./components/UpdateAttendance";
 import Hostelreport from "./components/Hostelreport";
 import ClassInfo from "./components/ClassInfo";
+import Update from "./update/Update";
+import UpdateStudentData from "./update/UpdateStudentData";
+import AddStudent from "./update/AddStudent";
+import ChangePasswordForm from "./update/ChangePasswordForm";
+import LeaveCountPage from "./components/LeaveCountPage";
+import InfoStatusPage from "./components/InfoStatusPage";
+import Attendace from "./components/Attendace";
+import UploadCsv from "./update/UploadCsv"; // Import the UploadCsv component
+import DeleteStudents from "./update/DeleteStudents"; // Import the DeleteStudents component
+import UpdateYear from "./update/UpdateYear";
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -45,7 +62,11 @@ function App() {
     let isMounted = true;
 
     const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isMounted) {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        isMounted
+      ) {
         setIsSidebarOpen(false);
       }
     };
@@ -65,12 +86,11 @@ function App() {
     window.location.href = "/signin";
   };
 
-
   return (
     <Router>
       <div className="flex flex-col h-screen">
         {/* Render Navbar only if authenticated */}
-        { <Navbar toggleSidebar={toggleSidebar} logoutHandler={logoutHandler} />}
+        {<Navbar toggleSidebar={toggleSidebar} logoutHandler={logoutHandler} />}
 
         {/* Sidebar Overlay for Mobile */}
         {isSidebarOpen && (
@@ -90,18 +110,52 @@ function App() {
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/homePage" element={<HomePage toggleSidebar={toggleSidebar} />} />
-              <Route path="/duty" element={<DutyPage selectedCourse={selectedItem} />} />
-              <Route path="/absentees" element={<Absentees selectedCourse={selectedItem} />} />
-              <Route path="/message" element={<MessagePage selectedCourse={selectedItem} toggleSidebar={toggleSidebar} />} />
+              <Route
+                path="/homePage"
+                element={<HomePage toggleSidebar={toggleSidebar} />}
+              />
+              <Route
+                path="/attendance"
+                element={<Attendace toggleSidebar={toggleSidebar} />}
+              />
+              <Route
+                path="/duty"
+                element={<DutyPage selectedCourse={selectedItem} />}
+              />
+              <Route
+                path="/absentees"
+                element={<Absentees selectedCourse={selectedItem} />}
+              />
+              <Route
+                path="/message"
+                element={
+                  <MessagePage
+                    selectedCourse={selectedItem}
+                    toggleSidebar={toggleSidebar}
+                  />
+                }
+              />
               <Route path="/viewattendance" element={<ViewAttendance />} />
               <Route path="/update-attendance" element={<UpdateAttendace />} />
-              <Route path="/generateMessage" element={<GenerateMessage toggleSidebar={toggleSidebar} />} />
+              <Route path="/update-data" element={<UpdateStudentData />} />
+              <Route path="/leave-count" element={<LeaveCountPage />} />
+              <Route
+                path="/generateMessage"
+                element={<GenerateMessage toggleSidebar={toggleSidebar} />}
+              />
+              <Route path="info-status" element={<InfoStatusPage />} />
               <Route path="/generateExcel" element={<GenerateExcel />} />
+              <Route path="/add-student" element={<AddStudent />} />
+              <Route path="/add-student-db" element={<UploadCsv />} />
+              <Route path="/delete-student" element={<DeleteStudents />} />
               <Route path="/send-email" element={<SendEmail />} />
               <Route path="/hostelreport" element={<Hostelreport />} />
               <Route path="/classinfo" element={<ClassInfo />} />
               <Route path="/generateReport" element={<GenerateReport />} />
+              <Route path="/change-password" element={<ChangePasswordForm />} />
+              <Route path="/update" element={<Update />} />
+              <Route path="/update-superpacc" element={<UpdateSuperPacc />} />
+              <Route path="/update-year" element={<UpdateYear />} />
             </Route>
 
             {/* Catch all unmatched routes */}

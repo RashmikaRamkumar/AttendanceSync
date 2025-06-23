@@ -13,6 +13,7 @@ const ProtectedRoute = () => {
     if (!token) {
       setShowError(true);
 
+      
       // Set a timeout to hide the error message after 2 seconds
       const timeout = setTimeout(() => {
         setShowError(false);
