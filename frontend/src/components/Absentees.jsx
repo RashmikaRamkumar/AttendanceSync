@@ -185,7 +185,7 @@ function Absentees() {
     try {
       // Make sure the server endpoint and data are correct
       const response = await axios.post(
-        "${backendURL}/api/attendance/absent",
+        `${backendURL}/api/attendance/absent",
         {
           rollNumbers: selectedRollNos,
           date,
@@ -228,7 +228,7 @@ function Absentees() {
 
     try {
       const response = await axios.post(
-        "${backendURL}/api/attendance/mark-remaining-present",
+        `${backendURL}/api/attendance/mark-remaining-present`,
         data
       );
 
@@ -268,7 +268,7 @@ function Absentees() {
     try {
       // Make the POST request to the backend API
       const response = await axios.post(
-        "${backendURL}/api/attendance/mark-SuperPacc",
+        `${backendURL}/api/attendance/mark-SuperPacc`
         data
       );
 

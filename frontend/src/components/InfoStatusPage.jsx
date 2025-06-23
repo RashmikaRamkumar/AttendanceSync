@@ -129,7 +129,7 @@ function InfoStatusPage() {
 
       // Send bulk update request
       const response = await axios.post(
-        "${backendURL}/api/attendance/bulk-update-info-status",
+        `${backendURL}/api/attendance/bulk-update-info-status`,
         {
           updates,
           date,

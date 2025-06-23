@@ -52,7 +52,7 @@ function UpdateAttendance() {
     try {
       setRollNumbers([]);
       const response = await axios.get(
-        "${backendURL}/api/attendance/get-attendancestatus",
+        `${backendURL}/api/attendance/get-attendancestatus`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`, // Add the token to the header
@@ -113,7 +113,7 @@ function UpdateAttendance() {
       }, {});
 
       const response = await axios.post(
-        "${backendURL}/api/attendance/mark-updatestatus",
+        `${backendURL}/api/attendance/mark-updatestatus`,
         {
           yearOfStudy,
           branch,

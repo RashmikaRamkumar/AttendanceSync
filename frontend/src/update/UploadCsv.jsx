@@ -31,7 +31,7 @@ function UploadCsv() {
     formData.append("csvfile", file);
 
     try {
-      const res = await fetch("${backendURL}/api/upload/add-student", {
+      const res = await fetch(`${backendURL}/api/upload/add-student`, {
         method: "POST",
         body: formData,
       });

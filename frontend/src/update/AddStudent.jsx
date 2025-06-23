@@ -51,7 +51,7 @@ function AddStudent() {
 
     try {
       const response = await axios.post(
-        "${backendURL}/api/students/create",
+        `${backendURL}/api/students/create`,
         formDataToSubmit
       );
       if (response.data.success) {

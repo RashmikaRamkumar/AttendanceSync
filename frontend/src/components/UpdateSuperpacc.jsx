@@ -41,7 +41,7 @@ function UpdateSuperpacc() {
     setErrorMessage("");
     try {
       const response = await axios.get(
-        "${backendURL}/api/students/superpacc/status",
+        `${backendURL}/api/students/superpacc/status`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -127,7 +127,7 @@ function UpdateSuperpacc() {
       }, {});
 
       const response = await axios.post(
-        "${backendURL}/api/students/superpacc/batch-update",
+        `${backendURL}/api/students/superpacc/batch-update`,
         {
           yearOfStudy,
           branch,

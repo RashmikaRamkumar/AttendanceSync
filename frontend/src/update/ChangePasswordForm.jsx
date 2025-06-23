@@ -61,8 +61,8 @@ const ChangePasswordForm = () => {
       // Set the endpoint based on the user type
       const endpoint =
         userType === "admin"
-          ? "${backendURL}/api/auth/admin/change-password"
-          : "${backendURL}/api/auth/user/change-password";
+          ? `${backendURL}/api/auth/admin/change-password`
+          : `${backendURL}/api/auth/user/change-password`;
 
       // Get token from localStorage
       const token = sessionStorage.getItem("authToken");

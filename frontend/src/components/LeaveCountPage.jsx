@@ -19,7 +19,7 @@ const LeaveCountPage = () => {
     setError(null);
     try {
       const response = await axios.get(
-        "${backendURL}/api/students/leaves",
+        `${backendURL}/api/students/leaves`,
         {
           params: filters,
         }
