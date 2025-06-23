@@ -208,7 +208,7 @@ function Absentees() {
       setSelectedRollNos([]);
       await fetchRollNumbers(yearOfStudy, branch, section, date);
       setMarkPresentVisible(true);
-      setmarksuperpacc(yearOfStudy === "III");
+      setmarksuperpacc(yearOfStudy === "III" || "IV");
     } catch (error) {
       console.error("Error marking absentees:", error);
 
