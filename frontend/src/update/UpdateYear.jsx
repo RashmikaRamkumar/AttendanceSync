@@ -21,7 +21,7 @@ function UpdateYear() {
     }
 
     try {
-      const res = await fetch(`${apiBase}/api/students/update-year`, {
+      const res = await fetch(`${backendURL}/api/students/update-year`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fromYear, toYear }),
