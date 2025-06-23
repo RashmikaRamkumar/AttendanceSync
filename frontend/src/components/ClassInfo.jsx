@@ -31,8 +31,10 @@ const ClassInfo = () => {
     { yearOfStudy: "III", branch: "AIDS", section: "B" },
     { yearOfStudy: "III", branch: "AIML", section: "A" },
     { yearOfStudy: "III", branch: "AIML", section: "B" },
-    { yearOfStudy: "IV", branch: "AIDS", section: "-" },
-    { yearOfStudy: "IV", branch: "AIML", section: "-" },
+    { yearOfStudy: "IV", branch: "AIDS", section: "A" },
+    { yearOfStudy: "IV", branch: "AIDS", section: "B" },
+    { yearOfStudy: "IV", branch: "AIML", section: "A" },
+    { yearOfStudy: "IV", branch: "AIML", section: "B" },
   ];
 
   const fetchAttendanceData = async (course, date) => {
