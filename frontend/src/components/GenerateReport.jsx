@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios"; // Import axios
@@ -33,7 +33,7 @@ const GenerateReport = () => {
   };
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     setDate(today);
   }, []);
 
@@ -43,11 +43,11 @@ const GenerateReport = () => {
       toast.info("Please select a date.", { autoClose: 800 });
       return;
     }
-  
+
     setIsLoading(true);
     setMessage("");
     const authToken = sessionStorage.getItem("authToken");
-  
+
     if (!authToken) {
       toast.error("Authorization token is missing. Please log in again.", {
         autoClose: 800,
@@ -55,9 +55,9 @@ const GenerateReport = () => {
       setIsLoading(false);
       return;
     }
-  
+
     const url = `${backendURL}/api/report/download-absent-report?gender=${gender}&date=${date}&hostellerDayScholar=${hostellerDayScholar}&yearOfStudy=${yearOfStudy}&section=${section}&branch=${branch}`;
-  
+
     axios
       .get(url, {
         responseType: "blob",
@@ -79,10 +79,10 @@ const GenerateReport = () => {
       })
       .catch((error) => {
         setIsLoading(false);
-  
+
         if (error.response) {
           const { status, data } = error.response;
-  
+
           if (status === 404) {
             const formattedDate = formatDate(date);
             setMessage(
@@ -108,11 +108,13 @@ const GenerateReport = () => {
         }
       });
   };
-  
+
   return (
-<div className="flex items-start justify-center min-h-screen p-6">
-  <div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
-    <h2 className="mb-2 text-2xl font-semibold text-center text-white">Download Absentee Report</h2>
+    <div className="flex items-start justify-center min-h-screen p-6">
+      <div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
+        <h2 className="mb-2 text-2xl font-semibold text-center text-white">
+          Download Absentee Report
+        </h2>
 
         {/* Date input field */}
         <div className="mb-4">
@@ -230,19 +232,21 @@ const GenerateReport = () => {
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
-          <option value="-">NA</option>
+            <option value="-">NA</option>
           </select>
         </div>
 
         {/* Button to download report */}
         <button
           onClick={handleDownload}
-          className={`w-full px-4 py-2 font-bold text-white transition duration-500 rounded-md shadow  ${isLoading? "bg-gray-600 hover:bg-gray-700 cursor-not-allowed":"bg-blue-600 hover:scale-105"}`}
+          className={`w-full px-4 py-2 font-bold text-white transition duration-500 rounded-md shadow  ${
+            isLoading
+              ? "bg-gray-600 hover:bg-gray-700 cursor-not-allowed"
+              : "bg-blue-600 hover:scale-105"
+          }`}
         >
           {isLoading ? "Loading..." : "Download Report"}
         </button>
-
-
 
         {/* Back button */}
         <button
@@ -253,13 +257,10 @@ const GenerateReport = () => {
         </button>
 
         {/* Display message if no students are absent */}
-        {message && (
-          <p className="mt-4 text-center text-white">{message}</p>
-        )}
+        {message && <p className="mt-4 text-center text-white">{message}</p>}
       </div>
 
       {/* Toast notifications */}
-    
     </div>
   );
 };
