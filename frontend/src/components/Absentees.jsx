@@ -497,7 +497,7 @@ function Absentees() {
           </button>
         )}
 
-        {yearOfStudy === "III" && markPresentVisible && marksuperpacc && (
+        {yearOfStudy === "III" || yearOfStudy==="IV" && markPresentVisible && marksuperpacc && (
           <button
             onClick={() => {
               setShowMarkSuperPaccPopup(true);
