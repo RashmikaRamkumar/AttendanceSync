@@ -23,7 +23,7 @@ function Absentees() {
   const [rollNumbers, setRollNumbers] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false); // For Confirm button confirmation popup
   const [showMarkPresentPopup, setShowMarkPresentPopup] = useState(false); // For Mark Present button confirmation popup
-  const [showMarkSuperPaccPopup, setShowMarkSuperPaccPopup] = useState(false); // For Mark Present button confirmation popup
+  const [showMarkPopup, setShowMarkSuperPaccPopup] = useState(false); // For Mark Present button confirmation popup
   const [popupMessage, setPopupMessage] = useState(""); // To dynamically update popup messages
   const [popupColor, setPopupColor] = useState(""); // To dynamically update popup colors
   const [selectedRollNos, setSelectedRollNos] = useState([]); // To keep track of selected roll numbers
@@ -49,6 +49,8 @@ function Absentees() {
     setMarkPresentVisible(false);
     setmarksuperpacc(false);
     setMarkabsentButton(false);
+
+
     setErrorMessage("");
 
     if (
@@ -89,7 +91,7 @@ function Absentees() {
           setErrorMessage(data.message);
           setRollNumbers([]);
           setMarkPresentVisible(true);
-          setmarksuperpacc(year === "III");
+          setmarksuperpacc(year === "III" ||year=== "IV");
           return;
         }
 
@@ -177,9 +179,10 @@ function Absentees() {
       });
       setShowConfirmationPopup(false);
       setMarkPresentVisible(true);
-      setmarksuperpacc(yearOfStudy === "III");
+      setmarksuperpacc(yearOfStudy === "III" ||yearOfStudy==="IV");
 
-      return; // Early return to prevent further execution
+      return; // Early return to p
+      // revent further execution
     }
 
     try {
@@ -208,7 +211,7 @@ function Absentees() {
       setSelectedRollNos([]);
       await fetchRollNumbers(yearOfStudy, branch, section, date);
       setMarkPresentVisible(true);
-      setmarksuperpacc(yearOfStudy === "III" || "IV");
+      setmarksuperpacc(yearOfStudy === "III" ||yearOfStudy==="IV" );
     } catch (error) {
       console.error("Error marking absentees:", error);
 
