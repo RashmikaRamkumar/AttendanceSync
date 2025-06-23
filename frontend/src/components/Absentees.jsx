@@ -23,7 +23,7 @@ function Absentees() {
   const [rollNumbers, setRollNumbers] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false); // For Confirm button confirmation popup
   const [showMarkPresentPopup, setShowMarkPresentPopup] = useState(false); // For Mark Present button confirmation popup
-  const [showMarkPopup, setShowMarkSuperPaccPopup] = useState(false); // For Mark Present button confirmation popup
+  const [showMarkSuperPaccPopup , setShowMarkSuperPaccPopup] = useState(false); // For Mark Present button confirmation popup
   const [popupMessage, setPopupMessage] = useState(""); // To dynamically update popup messages
   const [popupColor, setPopupColor] = useState(""); // To dynamically update popup colors
   const [selectedRollNos, setSelectedRollNos] = useState([]); // To keep track of selected roll numbers
