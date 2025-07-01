@@ -179,14 +179,14 @@ function Sidebar({ closeSidebar }) {
 
           {/* Other Options - Admin Only */}
           {role === "admin" && (
-            <FeatureSection
-              title="Other Options"
-              expandedFeature={expandedFeature}
-              toggleFeature={toggleFeature}
-              options={[{ label: "Leave Count", path: "/leave-count" }]}
-              handleNavigation={handleNavigation}
-            />
-          )}
+  <div
+    onClick={() => handleNavigation("/leave-count")}
+    className="flex justify-between items-center mt-12 mb-2 text-lg font-medium cursor-pointer hover:text-gray-200 hover:scale-105 transition-all duration-500"
+  >
+    <span className="text-xl">Leave Count</span>
+  </div>
+)}
+
         </div>
 
         {/* Modal Trigger Button */}
