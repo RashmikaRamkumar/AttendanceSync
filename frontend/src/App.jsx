@@ -6,9 +6,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";     
+import Sidebar from "./components/Sidebar";
 import HomePage from "./components/HomePage";
 import DutyPage from "./components/DutyPage";
 import Absentees from "./components/Absentees";

@@ -4,7 +4,9 @@ import axios from "axios"; // Import axios for API requests
 import { ToastContainer, toast } from "react-toastify"; // Import toastify
 import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
+const backendURL = import.meta.env.VITE_BACKEND_URL;
+
+// Debug: Log the backend URL to console
 
 function SignIn() {
   const navigate = useNavigate();
@@ -179,6 +181,5 @@ function SignIn() {
     </div>
   );
 }
-
 
 export default SignIn;
