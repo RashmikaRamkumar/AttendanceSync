@@ -4,7 +4,6 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify"; // Import react-toastify
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 import RoleFromToken from "./RoleFromToken"; // Import the function to get the role from token
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
 
 const MessagePage = ({ toggleSidebar }) => {
   const navigate = useNavigate();
@@ -68,7 +67,7 @@ const MessagePage = ({ toggleSidebar }) => {
     console.log(yearOfStudy, branch, section);
     try {
       const response = await axios.get(
-        `${backendURL}/api/report/absentStudents?yearOfStudy=${yearOfStudy}&branch=${branch}&section=${section}&date=${date}`,
+        `http://localhost:5000/api/report/absentStudents?yearOfStudy=${yearOfStudy}&branch=${branch}&section=${section}&date=${date}`,
         { withCredentials: true } // Add withCredentials in the configuration object
       );
     

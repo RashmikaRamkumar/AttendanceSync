@@ -449,5 +449,3 @@ function Dropdown({ label, value, options, onChange }) {
 }
 
 export default UpdateAttendance;
-
-

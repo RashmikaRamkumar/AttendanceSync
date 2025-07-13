@@ -36,3 +36,4 @@ router.get('/downloadreport/female', (req, res) => {
 router.get('/download-absent-report', handleCustomDownloadAbsentReport);
 
 module.exports = router;
+

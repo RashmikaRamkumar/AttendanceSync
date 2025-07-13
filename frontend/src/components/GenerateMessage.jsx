@@ -2,7 +2,6 @@ import React, { useState ,useEffect} from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
 
 const GenerateMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +82,7 @@ const GenerateMessage = () => {
     }
   
     // Construct the URL for the report
-    const url = `${backendURL}/api/report/absentStudentsCustom?gender=${gender}&date=${date}&hostellerDayScholar=${hostellerDayScholar}&yearOfStudy=${yearOfStudy}&section=${section}&branch=${branch}`;
+    const url = `http://localhost:5000/api/report/absentStudentsCustom?gender=${gender}&date=${date}&hostellerDayScholar=${hostellerDayScholar}&yearOfStudy=${yearOfStudy}&section=${section}&branch=${branch}`;
 
   
     // Add the Authorization header to the fetch request

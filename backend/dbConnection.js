@@ -1,11 +1,10 @@
 // dbConnection.js
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config();
+
 // MongoDB URI from MongoDB Atlas
 const uri = process.env.MONGO_URI;
-
 // Connect to MongoDB
+
 const connectDB = async () => {
   try {
     await mongoose.connect(uri, {

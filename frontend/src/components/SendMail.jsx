@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; // Importing toast and ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Importing styles for toast notifications
+
 const SendEmail = () => {
-  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const [emailStatus, setEmailStatus] = useState("");
   const [file, setFile] = useState(null);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
@@ -16,7 +16,6 @@ const SendEmail = () => {
 
   const sendEmail = async () => {
     if (!file) {
-      setEmailStatus("Please upload a file.");
       toast.error("You have not uploaded a file.", {
         autoClose: 800,
       }); // Show error toast notification
@@ -31,8 +30,6 @@ const SendEmail = () => {
     formData.append("subject", `${currentDate} - Absentees Report`);
     formData.append("content", "Please find the attached Excel report.");
     formData.append("toEmails", toEmails); // Use the toEmails state
-
-    
     const authToken = sessionStorage.getItem("authToken");
   
     if (!authToken) {
@@ -44,7 +41,8 @@ const SendEmail = () => {
     }
     try {
       const response = await fetch(
-        `${backendURL}/api/attendance/send-email`,
+        //"http://localhost:5000/api/attendance/send-email",
+        "http://localhost:5000/api/attendance/hostelreport",
         {
           method: "POST",
           body: formData,

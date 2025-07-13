@@ -109,5 +109,3 @@ const authenticateStaff = async (req, res, next) => {
 };
 
 module.exports = { authenticateUser, authenticateAdmin, authenticateStaff };
-
-

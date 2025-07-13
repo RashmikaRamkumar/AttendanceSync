@@ -16,6 +16,7 @@ router.get("/search/:rollNo", studentController.getStudentByRollNo); // fetch by
 router.put("/update-student-data/:rollNo", studentController.updateStudentData); // update by roll no
 router.post("/create", studentController.createStudent);
 router.delete("/delete/:rollNo", studentController.deleteStudentByRollNo);
+router.delete("/bulk-delete", studentController.bulkDeleteStudents);
 router.get("/leaves", studentController.getStudentsWithLeaveCount);
 
 // New routes for SuperPacc management
@@ -25,6 +26,7 @@ router.put(
   studentController.updateSuperPaccStatus
 );
 
+router.get("/distinct-classes", studentController.getDistinctClasses);
 // Add the batch update route
 router.post("/superpacc/batch-update", studentController.batchUpdateSuperPacc);
 

@@ -12,6 +12,7 @@ const romanToInt = (roman) => {
     return romanNumerals[roman] || 0; // Return 0 if invalid Roman numeral
 };
 
+
 const formatDate = (dateString) => {
     if (!dateString) return "";
     const [year, month, day] = dateString.split("-");
@@ -432,10 +433,13 @@ exports.handleCustomDownloadAbsentReport = async (req, res) => {
 
         // Dynamic title based on filters
         const titleParts = [
-            'Students Absentees List'
-            // ,hostellerDayScholar !== 'ALL' ? `Only ${hostellerDayScholar}` : null,
-        ]
-        //.filter(Boolean).join(', ');
+            'Students Absentees List',
+            gender !== 'ALL' ? `Gender: ${gender}` : null,
+            branch !== 'ALL' ? `Branch: ${branch}` : null,
+            yearOfStudy !== 'ALL' ? `Year: ${yearOfStudy}` : null,
+            section !== 'ALL' ? `Section: ${section}` : null,
+            hostellerDayScholar !== 'ALL' ? `Resident Type: ${hostellerDayScholar}` : null,
+        ].filter(Boolean).join(', ');
 
         const headers = hostellerDayScholar === 'ALL'
             ? ['S.No', 'Roll No', 'Student Name', 'Year', 'Branch', 'ResidentType']
@@ -444,7 +448,7 @@ exports.handleCustomDownloadAbsentReport = async (req, res) => {
         const reportData = [
             ['Kongu Engineering College'],
             ['Department of Artificial Intelligence'],
-            [`Students Absentees List - ${formattedDate}`],
+            [titleParts],
             headers,
         ];
 

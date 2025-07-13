@@ -861,5 +861,3 @@ export default function UpdateStudentData() {
     </div>
   );
 }
-
-
