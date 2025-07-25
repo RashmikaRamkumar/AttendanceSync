@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
+import { Eye, EyeOff, Lock, User, Shield } from "lucide-react";
+
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const ChangePasswordForm = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +12,12 @@ const ChangePasswordForm = () => {
     newPassword: "",
     confirmNewPassword: "",
   });
-  // ... rest of the state and handlers ...
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,7 +27,6 @@ const ChangePasswordForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (formData.newPassword.length < 6) {
       setMessage({
         text: "New password must be at least 6 characters long",
@@ -92,203 +98,235 @@ const ChangePasswordForm = () => {
     }
   };
 
-  // State for loading and message
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   return (
-    <div className="p-6 mx-auto w-full max-w-md bg-white rounded-lg shadow-md">
-      <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">
-        Change Password (Admin/Staff/User)
-      </h2>
-      {message.text && (
-        <div
-          className={`p-3 rounded-md mb-4 ${
-            message.type === "success"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {message.text}
+    <div className="min-h-[60vh] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-8 px-2">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="mb-4 text-center">
+          <h1 className="mb-2 text-2xl font-bold text-slate-900">
+            Change Password
+          </h1>
         </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Role Dropdown */}
-        <div>
-          <label htmlFor="role" className="block mb-1 text-sm font-medium text-gray-700">
-            Select Role
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="Admin">Admin</option>
-            <option value="Staff">Staff</option>
-            <option value="User">User</option>
-          </select>
-        </div>
-        {/* Username Field */}
-        <div>
-          <label htmlFor="username" className="block mb-1 text-sm font-medium text-gray-700">
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        {/* Current Password Field */}
-        <div>
-          <label htmlFor="currentPassword" className="block mb-1 text-sm font-medium text-gray-700">
-            Current Password
-          </label>
-          <div className="relative">
-            <input
-              type={showCurrentPassword ? "text" : "password"}
-              id="currentPassword"
-              name="currentPassword"
-              value={formData.currentPassword}
-              onChange={handleChange}
-              required
-              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center px-3"
-              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+
+        {/* Form Card */}
+        <div className="p-8 bg-white rounded-xl border shadow-lg border-slate-200">
+          {/* Message */}
+          {message.text && (
+            <div
+              className={`mb-6 p-4 rounded-lg border ${
+                message.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-800"
+                  : "bg-red-50 border-red-200 text-red-800"
+              }`}
             >
-              {showCurrentPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-        {/* New Password Field */}
-        <div>
-          <label htmlFor="newPassword" className="block mb-1 text-sm font-medium text-gray-700">
-            New Password
-          </label>
-          <div className="relative">
-            <input
-              type={showNewPassword ? "text" : "password"}
-              id="newPassword"
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleChange}
-              required
-              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center px-3"
-              onClick={() => setShowNewPassword(!showNewPassword)}
-            >
-              {showNewPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              )}
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-gray-500">
-            Must be at least 6 characters long
-          </p>
-        </div>
-        {/* Confirm New Password Field */}
-        <div>
-          <label htmlFor="confirmNewPassword" className="block mb-1 text-sm font-medium text-gray-700">
-            Confirm New Password
-          </label>
-          <div className="relative">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              id="confirmNewPassword"
-              name="confirmNewPassword"
-              value={formData.confirmNewPassword}
-              onChange={handleChange}
-              required
-              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center px-3"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 w-full text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300"
-        >
-          {loading ? (
-            <span className="flex justify-center items-center">
-              <svg
-                className="mr-2 w-5 h-5 text-white animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Processing...
-            </span>
-          ) : (
-            "Change Password"
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  {message.type === "success" ? (
+                    <div className="flex justify-center items-center w-5 h-5 bg-green-500 rounded-full">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="flex justify-center items-center w-5 h-5 bg-red-500 rounded-full">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium">{message.text}</p>
+                </div>
+              </div>
+            </div>
           )}
-        </button>
-      </form>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Role Selection */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-slate-700">
+                Account Type
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="px-4 py-3 w-full rounded-lg border transition-colors border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Admin">Admin</option>
+                <option value="Staff">Staff</option>
+                <option value="User">User</option>
+              </select>
+            </div>
+
+            {/* Username */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-slate-700">
+                Username
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 w-5 h-5 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  className="py-3 pr-4 pl-10 w-full rounded-lg border transition-colors border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter your username"
+                />
+              </div>
+            </div>
+
+            {/* Current Password */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-slate-700">
+                Current Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 w-5 h-5 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  value={formData.currentPassword}
+                  onChange={handleChange}
+                  required
+                  className="py-3 pr-12 pl-10 w-full rounded-lg border transition-colors border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 transition-colors transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* New Password */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-slate-700">
+                New Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 w-5 h-5 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  name="newPassword"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  required
+                  className="py-3 pr-12 pl-10 w-full rounded-lg border transition-colors border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 transition-colors transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Must be at least 6 characters long
+              </p>
+            </div>
+
+            {/* Confirm New Password */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-slate-700">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 w-5 h-5 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmNewPassword"
+                  value={formData.confirmNewPassword}
+                  onChange={handleChange}
+                  required
+                  className="py-3 pr-12 pl-10 w-full rounded-lg border transition-colors border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Confirm new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transition-colors transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-3 w-full font-medium text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="flex justify-center items-center">
+                  <svg
+                    className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Updating Password...
+                </div>
+              ) : (
+                "Update Password"
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default ChangePasswordForm;
-
-
