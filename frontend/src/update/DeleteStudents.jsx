@@ -247,7 +247,6 @@ function DeleteStudents() {
                       className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                     >
                       <option value="">Select Year</option>
-                      <option value="I">I</option>
                       <option value="II">II</option>
                       <option value="III">III</option>
                       <option value="IV">IV</option>
@@ -265,7 +264,6 @@ function DeleteStudents() {
                     >
                       <option value="">Select Branch</option>
                       <option value="AIDS">AI & DS</option>
-                      <option value="CSE">CSE</option>
                       <option value="AIML">AI & ML</option>
                     </select>
                   </div>

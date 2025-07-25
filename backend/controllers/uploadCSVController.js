@@ -43,28 +43,70 @@ exports.addStudent = async (req, res) => {
           });
         }
 
-        const rollNos = results.map((r) => r.rollNo);
-        const existing = await Student.find({
-          rollNo: { $in: rollNos },
-        }).select("rollNo");
-        const existingRollNos = new Set(existing.map((doc) => doc.rollNo));
-        const newEntries = results.filter(
-          (r) => !existingRollNos.has(r.rollNo)
-        );
+        let insertedCount = 0;
+        let updatedCount = 0;
+        let skippedCount = 0;
+        let skippedRows = [];
 
-        if (newEntries.length > 0) {
-          await Student.insertMany(newEntries);
-          res.json({
-            success: true,
-            message: `${newEntries.length} new student(s) inserted. Duplicates skipped.`,
-          });
-        } else {
-          res.json({
-            success: true,
-            message:
-              "No new students inserted. All roll numbers already exist.",
-          });
+        for (const row of results) {
+          const {
+            rollNo,
+            name,
+            hostellerDayScholar,
+            gender,
+            yearOfStudy,
+            branch,
+            section,
+          } = row;
+          if (!rollNo || !name) {
+            skippedCount++;
+            skippedRows.push({
+              rollNo,
+              name,
+              reason: "Missing rollNo or name",
+            });
+            continue;
+          }
+
+          const existingStudent = await Student.findOne({ rollNo });
+          if (!existingStudent) {
+            // Insert new student
+            await Student.create({
+              rollNo,
+              name,
+              hostellerDayScholar,
+              gender,
+              yearOfStudy,
+              branch,
+              section,
+            });
+            insertedCount++;
+          } else if (existingStudent.name === name) {
+            // Duplicate (same rollNo and name)
+            skippedCount++;
+            skippedRows.push({
+              rollNo,
+              name,
+              reason: "Duplicate (same rollNo and name)",
+            });
+          } else {
+            // Update existing student (same rollNo, different name)
+            existingStudent.name = name;
+            existingStudent.hostellerDayScholar = hostellerDayScholar;
+            existingStudent.gender = gender;
+            existingStudent.yearOfStudy = yearOfStudy;
+            existingStudent.branch = branch;
+            existingStudent.section = section;
+            await existingStudent.save();
+            updatedCount++;
+          }
         }
+
+        res.json({
+          success: true,
+          message: `${insertedCount} new student(s) inserted, ${updatedCount} updated, ${skippedCount} skipped (duplicates or missing data).`,
+          details: { insertedCount, updatedCount, skippedCount, skippedRows },
+        });
       } catch (err) {
         console.error("Upload error:", err);
         res.status(500).json({
@@ -86,4 +128,3 @@ exports.addStudent = async (req, res) => {
       });
     });
 };
-  

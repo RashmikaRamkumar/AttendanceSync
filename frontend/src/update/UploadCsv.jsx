@@ -8,6 +8,9 @@ function UploadCsv() {
   const [messageType, setMessageType] = useState(""); // 'success' or 'error'
   const backendURL = import.meta.env.VITE_BACKEND_URL;
 
+  // Add a state for controlling the full-page loader
+  const [showLoader, setShowLoader] = useState(false);
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setMessage(""); // Clear message when new file is selected
@@ -27,6 +30,7 @@ function UploadCsv() {
     if (!file) return;
 
     setIsUploading(true);
+    setShowLoader(true); // Show loader
     const formData = new FormData();
     formData.append("csvfile", file);
 
@@ -49,6 +53,7 @@ function UploadCsv() {
       setMessageType("error");
     } finally {
       setIsUploading(false);
+      setShowLoader(false); // Hide loader
       setFile(null);
     }
   };
@@ -71,7 +76,19 @@ function UploadCsv() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex relative flex-col">
+      {/* Full-page loading overlay */}
+      {showLoader && (
+        <div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/30">
+          <div className="flex flex-col items-center">
+            <div className="mb-4 loader" />
+            <span className="text-lg font-semibold text-white animate-pulse">
+              Uploading...
+            </span>
+          </div>
+        </div>
+      )}
+      {/* Main content */}
       <div
         className="flex justify-center items-center w-full h-32 rounded-lg border-2 border-dashed transition-colors cursor-pointer border-slate-300 hover:border-slate-400 bg-slate-50 group"
         onDrop={handleDrop}
@@ -131,6 +148,36 @@ function UploadCsv() {
       )}
     </div>
   );
+}
+
+// Add CSS for the loader animation
+// You can add this in the same file using a <style> tag or in your global CSS
+// Here, we'll use a style tag for simplicity
+
+// For Vite/CRA, you can use a style tag in the component file for quick prototyping
+// Or move to a CSS file for production
+if (
+  typeof document !== "undefined" &&
+  !document.getElementById("upload-csv-loader-style")
+) {
+  const style = document.createElement("style");
+  style.id = "upload-csv-loader-style";
+  style.innerHTML = `
+    .loader {
+      border: 6px solid #e5e7eb;
+      border-top: 6px solid #2563eb;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 16px #2563eb44;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 export default UploadCsv;
