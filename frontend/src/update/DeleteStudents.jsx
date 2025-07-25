@@ -264,6 +264,7 @@ function DeleteStudents() {
                     >
                       <option value="">Select Branch</option>
                       <option value="AIDS">AI & DS</option>
+                      {/* <option value="CSE">CSE</option> */}
                       <option value="AIML">AI & ML</option>
                     </select>
                   </div>

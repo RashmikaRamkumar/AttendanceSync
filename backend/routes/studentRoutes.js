@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const studentController = require("../controllers/studentController");
 
-// Test route
-router.get("/test", (req, res) => {
-  res.json({ message: "Student routes are working" });
-});
+// // Test route
+// router.get("/test", (req, res) => {
+//   res.json({ message: "Student routes are working" });
+// });
 
 // Define the route to get roll numbers by criteria
 router.get("/remaining", studentController.fetchRemainingStudents);

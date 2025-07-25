@@ -8,7 +8,7 @@ const path = require("path");
 exports.markOnDuty = async (req, res) => {
   const { rollNumbers, date, yearOfStudy, branch, section } = req.body;
 
-  console.log(rollNumbers, date, yearOfStudy, branch, section);
+  //console.log(rollNumbers, date, yearOfStudy, branch, section);
   try {
     // Array to track roll numbers that are already marked
 
@@ -46,7 +46,7 @@ exports.getStudentsWithoutAttendance = async (req, res) => {
     });
   }
 
-  console.log("Query Parameters:", { yearOfStudy, branch, section, date });
+  //console.log("Query Parameters:", { yearOfStudy, branch, section, date });
 
   try {
     // Fetch all students in the specified year, branch, and section
@@ -56,7 +56,7 @@ exports.getStudentsWithoutAttendance = async (req, res) => {
       section,
     }).select("rollNo name -_id"); // Retrieve rollNo and name fields, excluding _id
 
-    console.log("All Students Found:", allStudents);
+    //console.log("All Students Found:", allStudents);
 
     // Fetch students who have an attendance record for the specified date
     const attendanceRecords = await Attendance.find({
@@ -445,7 +445,7 @@ exports.getAttendanceStatusCount = async (req, res) => {
     });
   }
 
-  console.log("Query Parameters:", { yearOfStudy, branch, section, date });
+  //console.log("Query Parameters:", { yearOfStudy, branch, section, date });
 
   try {
     // Fetch all students in the specified year, branch, and section

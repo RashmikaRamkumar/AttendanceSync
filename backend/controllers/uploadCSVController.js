@@ -12,8 +12,8 @@ exports.addStudent = async (req, res) => {
 
   const results = [];
   const filePath = req.file.path;
-  let isFirstRow = true;
 
+  let isFirstRow = true;
   fs.createReadStream(filePath)
     .pipe(
       csv([

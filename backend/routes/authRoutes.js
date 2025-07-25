@@ -14,6 +14,8 @@ router.post("/login/user", loginUser);
 router.post("/login/admin", loginAdmin);
 router.post("/login/staff", loginStaff);
 router.put("/admin/change-password", authenticateAdmin, changePassword);
-router.put("/user/change-password", authenticateUser, changePassword);
+router.put("/user/change-password", authenticateAdmin, changePassword);
+router.put("/staff/change-password", authenticateAdmin, changePassword);
+
 module.exports = router;
 
