@@ -124,6 +124,7 @@ exports.addStudent = async (req, res) => {
         res.status(500).json({
           success: false,
           message: "Failed to upload to MongoDB.",
+          error: err.message, // Add this for debugging
         });
       } finally {
         // Cleanup temp file

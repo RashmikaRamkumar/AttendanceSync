@@ -5,6 +5,12 @@ const cors = require("cors"); // Import the CORS middleware
 const bodyParser = require("body-parser");
 const app = express();
 const cookieParser = require("cookie-parser");
+const fs = require("fs");
+const path = require("path");
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 // Connect to the database
 connectDB();
@@ -13,7 +19,8 @@ require("dotenv").config(); // Load environment variables from .env file
 // CORS configuration
 const corsOptions = {
   origin: [
-    "http://localhost:5173","https://ai-attendance-client.vercel.app"
+    "http://localhost:5173",
+    "https://ai-attendance-client.vercel.app",
   ].filter(Boolean), // Remove any undefined values
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
   credentials: true, // Allow cookies and credentials
