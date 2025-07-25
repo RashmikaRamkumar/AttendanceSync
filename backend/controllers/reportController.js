@@ -9,7 +9,7 @@ const romanToInt = (roman) => {
         'III': 3,
         'IV': 4
     };
-    return romanNumerals[roman] || 0; // Return 0 if invalid Roman numeral
+    return romanNumerals[roman.toUpperCase()] || 0; // Return 0 if invalid Roman numeral
 };
 
 
@@ -109,7 +109,7 @@ exports.handleCustomAbsentMessage = async (req, res) => {
         } else {
             allStudents = await Student.find({ gender }).select('rollNo name gender yearOfStudy branch section hostellerDayScholar');
         }
-        console.log('Total students fetched:', allStudents.length);
+        //console.log('Total students fetched:', allStudents.length);
 
         // Apply branch filter if provided
         if (branch && branch !== 'ALL') {
@@ -133,13 +133,13 @@ exports.handleCustomAbsentMessage = async (req, res) => {
 
         // Fetch attendance records for the specified date (only absent students)
         const attendanceRecords = await Attendance.find({ date, status: 'Absent' }).select('rollNo');
-        console.log('Total attendance records fetched for absent students:', attendanceRecords.length);
+        //console.log('Total attendance records fetched for absent students:', attendanceRecords.length);
 
         // Filter students who were absent on the given date
         const absentStudents = allStudents.filter(student =>
             attendanceRecords.some(record => record.rollNo === student.rollNo)
         );
-        console.log('Absent Students before hostel filter:', absentStudents);
+        //console.log('Absent Students before hostel filter:', absentStudents);
 
         if (absentStudents.length === 0) {
             console.log(`No absent students found for specified criteria on ${date}.`);
@@ -341,7 +341,8 @@ exports.handleDownloadAbsentReport = async (gender, req, res) => {
         console.log('Header merged and centered successfully.');
 
         // Set the file as an attachment for download
-        res.attachment(`${hostelType}_Absent_Students_${formattedDate}.xlsx`);
+        res.attachment(`${hostelType}_Absent_Students_${formattedDate}.xlsx`); 
+        //Sets the Content-Disposition header to attachment. If a filename is provided, it also tells the browser to download the file with that name.
         
         // Write the workbook to the response as a stream
         await workbook.xlsx.write(res);

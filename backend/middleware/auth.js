@@ -6,7 +6,7 @@ const Admin = require("../models/adminSchema");
 const verifyTokenAndRole = async (authToken, roleType) => {
   try {
     // Decode the JWT token
-    const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY);  //checks whether the token is valid(not expired , not tampered with)
     let user;
 
     // Check for the user or admin based on the roleType
@@ -99,7 +99,7 @@ const authenticateStaff = async (req, res, next) => {
 
   try {
     const admin = await verifyTokenAndRole(authToken, "staff");
-    req.admin = staff; // Attach admin info to the request
+    req.staff = staff; // Attach admin info to the request
     next();
   } catch (error) {
     return res
