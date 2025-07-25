@@ -60,6 +60,9 @@ exports.addStudent = async (req, res) => {
             yearOfStudy,
             branch,
             section,
+            parentMobileNo,
+            studentMobileNo,
+            superPacc,
           } = row;
           if (!rollNo || !name) {
             skippedCount++;
@@ -82,6 +85,9 @@ exports.addStudent = async (req, res) => {
               yearOfStudy,
               branch,
               section,
+              parentMobileNo,
+              studentMobileNo,
+              superPacc,
             });
             insertedCount++;
           } else if (existingStudent.name === name) {
@@ -100,6 +106,9 @@ exports.addStudent = async (req, res) => {
             existingStudent.yearOfStudy = yearOfStudy;
             existingStudent.branch = branch;
             existingStudent.section = section;
+            existingStudent.parentMobileNo = parentMobileNo;
+            existingStudent.studentMobileNo = studentMobileNo;
+            existingStudent.superPacc = superPacc;
             await existingStudent.save();
             updatedCount++;
           }
