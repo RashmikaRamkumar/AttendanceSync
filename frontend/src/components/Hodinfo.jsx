@@ -5,17 +5,13 @@ import { toast } from "react-toastify";
 import StudentDetailCard from "./StudentDetailCard";
 
 const Hodinfo = () => {
-  const [courses, setCourses] = useState([]); // Distinct classes
-  const [expandedIndex, setExpandedIndex] = useState(null); // Which class is expanded
-  const [absentees, setAbsentees] = useState({}); // {index: [absentees]}
-  const [loadingAbsentees, setLoadingAbsentees] = useState({}); // {index: boolean}
-  const [classesLoading, setClassesLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState([]);
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]); // Add date state
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDetailCardOpen, setIsDetailCardOpen] = useState(false);
-  const [leaveCounts, setLeaveCounts] = useState({}); // { rollNo: leaveCount }
-  const [attendanceStatus, setAttendanceStatus] = useState({}); // { index: "marked" | "not_marked" }
 
   const authToken = sessionStorage.getItem("authToken");
 
@@ -34,237 +30,49 @@ const Hodinfo = () => {
     return `${day}-${month}-${year}`;
   };
 
-  // Fetch distinct classes from backend
-  const fetchDistinctClasses = async () => {
-    setClassesLoading(true);
+  // Fetch all dashboard data in one optimized call
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    setError("");
+
     try {
       const backendURL = import.meta.env.VITE_BACKEND_URL;
       const response = await axios.get(
-        `${backendURL}/api/students/distinct-classes`,
+        `${backendURL}/api/attendance/hod-dashboard`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
+          params: { date },
         }
       );
 
       if (response.data.success) {
-        setCourses(response.data.classes);
-        setError("");
+        setDashboardData(response.data.data);
       } else {
-        setError("Failed to fetch class information");
+        setError("Failed to fetch dashboard data");
+        toast.error("Failed to load dashboard data", { autoClose: 800 });
       }
     } catch (err) {
-      setError("Error fetching class information");
-      toast.error("Failed to load class information", { autoClose: 800 });
+      setError("Error fetching dashboard data");
+      toast.error("Failed to load dashboard data", { autoClose: 800 });
+      console.error("Error:", err);
     } finally {
-      setClassesLoading(false);
-    }
-  };
-
-  // Fetch leave counts for absentees
-  const fetchLeaveCounts = async (students, course) => {
-    if (!students || students.length === 0) return;
-    try {
-      const backendURL = import.meta.env.VITE_BACKEND_URL;
-      const response = await axios.get(`${backendURL}/api/students/leaves`, {
-        params: {
-          yearOfStudy: course.yearOfStudy,
-          branch: course.branch,
-          section: course.section,
-          date: date,
-        },
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      if (response.data && response.data.data) {
-        // Map rollNo to leaveCount
-        const leaveMap = {};
-        response.data.data.forEach((student) => {
-          leaveMap[student.rollNo] = student.leaveCount;
-        });
-        setLeaveCounts((prev) => ({ ...prev, ...leaveMap }));
-      }
-    } catch (err) {
-      // Optionally handle error
-    }
-  };
-
-  // Check attendance status using attendance controller
-  const checkAttendanceStatus = async (course, idx) => {
-    setLoadingAbsentees((prev) => ({ ...prev, [idx]: true }));
-    try {
-      const backendURL = import.meta.env.VITE_BACKEND_URL;
-      const url = `${backendURL}/api/attendance/getAttendanceStatusCount?yearOfStudy=${course.yearOfStudy}&branch=${course.branch}&section=${course.section}&date=${date}`;
-
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      const { absentCount, otherStatusCount } = response.data;
-
-      // If attendance is not marked (returns "N/A")
-      if (absentCount === "N/A" || otherStatusCount === "N/A") {
-        setAbsentees((prev) => ({
-          ...prev,
-          [idx]: [],
-        }));
-        setAttendanceStatus((prev) => ({
-          ...prev,
-          [idx]: "not_marked",
-        }));
-        return;
-      }
-
-      // If attendance is marked, get absent students using student controller
-      const absentResponse = await axios.get(
-        `${backendURL}/api/students/remaining`,
-        {
-          params: {
-            yearOfStudy: course.yearOfStudy,
-            branch: course.branch,
-            section: course.section,
-            date: date,
-          },
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      const { students } = absentResponse.data;
-
-      setAbsentees((prev) => ({
-        ...prev,
-        [idx]: students || [],
-      }));
-      setAttendanceStatus((prev) => ({
-        ...prev,
-        [idx]: "marked",
-      }));
-
-      // Fetch leave counts for these absentees
-      if (students && students.length > 0) {
-        fetchLeaveCounts(students, course);
-      }
-    } catch (err) {
-      setAbsentees((prev) => ({ ...prev, [idx]: [] }));
-      setAttendanceStatus((prev) => ({
-        ...prev,
-        [idx]: "not_marked",
-      }));
-      toast.error("Failed to fetch attendance status", { autoClose: 800 });
-    } finally {
-      setLoadingAbsentees((prev) => ({ ...prev, [idx]: false }));
-    }
-  };
-
-  // Fetch attendance status for all classes upfront
-  const fetchAllAttendanceStatus = async () => {
-    if (!courses || courses.length === 0) return;
-
-    const promises = courses.map(async (course, idx) => {
-      try {
-        const backendURL = import.meta.env.VITE_BACKEND_URL;
-
-        // First check attendance status
-        const statusResponse = await axios.get(
-          `${backendURL}/api/attendance/getAttendanceStatusCount`,
-          {
-            params: {
-              yearOfStudy: course.yearOfStudy,
-              branch: course.branch,
-              section: course.section,
-              date: date,
-            },
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
-        const { absentCount, otherStatusCount } = statusResponse.data;
-
-        // If attendance is not marked
-        if (absentCount === "N/A" || otherStatusCount === "N/A") {
-          return { idx, students: [], status: "not_marked" };
-        }
-
-        // If attendance is marked, get absent students
-        const absentResponse = await axios.get(
-          `${backendURL}/api/students/remaining`,
-          {
-            params: {
-              yearOfStudy: course.yearOfStudy,
-              branch: course.branch,
-              section: course.section,
-              date: date,
-            },
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
-        const { students } = absentResponse.data;
-        return { idx, students: students || [], status: "marked" };
-      } catch (err) {
-        return { idx, students: [], status: "not_marked" };
-      }
-    });
-
-    try {
-      const results = await Promise.all(promises);
-      const newAbsentees = {};
-      const newAttendanceStatus = {};
-
-      results.forEach(({ idx, students, status }) => {
-        newAbsentees[idx] = students.map((student) => ({
-          rollNo: student.rollNo,
-          name: student.name,
-        }));
-        newAttendanceStatus[idx] = status;
-      });
-
-      setAbsentees(newAbsentees);
-      setAttendanceStatus(newAttendanceStatus);
-    } catch (err) {
-      console.error("Error fetching all attendance status:", err);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDistinctClasses();
-  }, []);
+    fetchDashboardData();
+  }, [date]);
 
-  // Fetch all attendance status when courses are loaded
-  useEffect(() => {
-    if (courses.length > 0) {
-      fetchAllAttendanceStatus();
-    }
-  }, [courses, date]);
-
-  // Clear absentees when date changes (will be refetched by above useEffect)
+  // Clear expanded state when date changes
   useEffect(() => {
     setExpandedIndex(null);
   }, [date]);
 
-  const handleExpand = (idx, course) => {
-    if (expandedIndex === idx) {
-      setExpandedIndex(null);
-    } else {
-      setExpandedIndex(idx);
-      // If for some reason data is missing, fetch it
-      if (!absentees[idx]) {
-        checkAttendanceStatus(course, idx);
-      } else if (absentees[idx].length > 0) {
-        // Fetch leave counts for already loaded absentees
-        fetchLeaveCounts(absentees[idx], course);
-      }
-    }
+  const handleExpand = (idx) => {
+    setExpandedIndex(expandedIndex === idx ? null : idx);
   };
 
   const handleStudentClick = (student, course) => {
@@ -280,6 +88,20 @@ const Hodinfo = () => {
   const closeDetailCard = () => {
     setIsDetailCardOpen(false);
     setSelectedStudent(null);
+  };
+
+  // Helper function to get card color based on leave count
+  const getCardColor = (leaveCount) => {
+    if (leaveCount >= 4) return "bg-red-600 hover:bg-red-700";
+    if (leaveCount >= 2) return "bg-yellow-600 hover:bg-yellow-700";
+    return "bg-green-600 hover:bg-green-700";
+  };
+
+  // Helper function to get badge color based on leave count
+  const getBadgeColor = (leaveCount) => {
+    if (leaveCount >= 4) return "bg-white text-red-600";
+    if (leaveCount >= 2) return "bg-white text-yellow-600";
+    return "bg-white text-green-600";
   };
 
   return (
@@ -310,43 +132,44 @@ const Hodinfo = () => {
         </div>
       </div>
 
-      {/* Classes Dropdown - Outside the main box */}
+      {/* Classes List */}
       <div className="w-full max-w-6xl">
         <div className="bg-white rounded-lg divide-y divide-gray-200 shadow">
-          {classesLoading ? (
+          {isLoading ? (
             <div className="p-8 text-lg text-center text-gray-600">
-              Loading classes...
+              <div className="flex justify-center items-center space-x-2">
+                <div className="w-6 h-6 rounded-full border-2 border-blue-500 animate-spin border-t-transparent"></div>
+                <span>Loading dashboard data...</span>
+              </div>
             </div>
-          ) : courses.length === 0 ? (
+          ) : dashboardData.length === 0 ? (
             <div className="p-8 text-lg text-center text-gray-600">
               No classes found.
             </div>
           ) : (
-            courses.map((course, idx) => (
+            dashboardData.map((course, idx) => (
               <div key={idx}>
                 <div
                   className="flex justify-between items-center px-6 py-4 transition cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleExpand(idx, course)}
+                  onClick={() => handleExpand(idx)}
                 >
                   <div className="text-lg font-semibold text-gray-800">
                     {course.yearOfStudy} - {course.branch} - {course.section}
                   </div>
                   <div className="flex gap-3 items-center">
-                    {attendanceStatus[idx] === "not_marked" ? (
+                    {course.status === "not_marked" ? (
                       <div className="text-lg font-semibold text-red-500">
                         Not Marked
                       </div>
                     ) : (
-                      absentees[idx] && (
-                        <div className="flex gap-1 items-center">
-                          <span className="text-sm font-medium text-gray-600">
-                            Count:
-                          </span>
-                          <span className="text-lg font-semibold text-gray-800">
-                            {absentees[idx].length}
-                          </span>
-                        </div>
-                      )
+                      <div className="flex gap-1 items-center">
+                        <span className="text-sm font-medium text-gray-600">
+                          Count:
+                        </span>
+                        <span className="text-lg font-semibold text-gray-800">
+                          {course.absentStudents.length}
+                        </span>
+                      </div>
                     )}
                     <div>
                       {expandedIndex === idx ? (
@@ -359,33 +182,22 @@ const Hodinfo = () => {
                 </div>
                 {expandedIndex === idx && (
                   <div className="px-2 pb-6 sm:px-8">
-                    {loadingAbsentees[idx] ? (
-                      <div className="py-4 text-center text-gray-500">
-                        Loading absentees...
-                      </div>
-                    ) : attendanceStatus[idx] === "not_marked" ? (
+                    {course.status === "not_marked" ? (
                       <div className="py-4 font-semibold text-center text-red-500">
                         Attendance not marked for this class.
                       </div>
-                    ) : absentees[idx] && absentees[idx].length > 0 ? (
+                    ) : course.absentStudents.length > 0 ? (
                       <div>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-2 sm:grid-cols-3 sm:gap-x-2 sm:gap-y-2 md:grid-cols-4 md:gap-x-2 md:gap-y-2 lg:grid-cols-5 lg:gap-x-2 lg:gap-y-2 xl:grid-cols-6 xl:gap-x-2 xl:gap-y-2 2xl:grid-cols-8 2xl:gap-x-2 2xl:gap-y-2">
-                          {absentees[idx].map((student, i) => (
+                          {course.absentStudents.map((student, i) => (
                             <div
                               key={i}
                               onClick={() =>
                                 handleStudentClick(student, course)
                               }
-                              className={`relative flex justify-center items-center p-3 font-semibold text-white rounded-lg shadow-md transition-all duration-300 transform cursor-pointer hover:scale-105 w-full min-h-[80px] ${
-                                typeof leaveCounts[student.rollNo] !==
-                                "undefined"
-                                  ? leaveCounts[student.rollNo] >= 4
-                                    ? "bg-red-600 hover:bg-red-700"
-                                    : leaveCounts[student.rollNo] >= 2
-                                    ? "bg-yellow-600 hover:bg-yellow-700"
-                                    : "bg-green-600 hover:bg-green-700"
-                                  : "bg-red-600 hover:bg-red-700"
-                              }`}
+                              className={`relative flex justify-center items-center p-3 font-semibold text-white rounded-lg shadow-md transition-all duration-300 transform cursor-pointer hover:scale-105 w-full min-h-[80px] ${getCardColor(
+                                student.leaveCount
+                              )}`}
                             >
                               <div className="text-center">
                                 <div className="text-sm font-bold">
@@ -393,20 +205,13 @@ const Hodinfo = () => {
                                 </div>
                                 <div className="text-sm">{student.rollNo}</div>
                               </div>
-                              {typeof leaveCounts[student.rollNo] !==
-                                "undefined" && (
-                                <span
-                                  className={`absolute bottom-1 right-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                    leaveCounts[student.rollNo] >= 4
-                                      ? "bg-white text-red-600"
-                                      : leaveCounts[student.rollNo] >= 2
-                                      ? "bg-white text-yellow-600"
-                                      : "bg-white text-green-600"
-                                  }`}
-                                >
-                                  {leaveCounts[student.rollNo]}
-                                </span>
-                              )}
+                              <span
+                                className={`absolute bottom-1 right-1 px-2 py-0.5 text-xs font-semibold rounded-full ${getBadgeColor(
+                                  student.leaveCount
+                                )}`}
+                              >
+                                {student.leaveCount}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -436,8 +241,3 @@ const Hodinfo = () => {
 };
 
 export default Hodinfo;
-
-
-
-
-

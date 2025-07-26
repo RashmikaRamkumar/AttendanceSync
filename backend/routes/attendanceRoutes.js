@@ -68,4 +68,7 @@ router.post(
   attendanceController.bulkUpdateInfoStatus
 );
 
+// Route to get optimized HOD dashboard data
+router.get("/hod-dashboard", attendanceController.getHodDashboardData);
+
 module.exports = router;

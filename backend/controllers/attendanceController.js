@@ -747,3 +747,144 @@ exports.bulkUpdateInfoStatus = async (req, res) => {
 };
 
 // Get distinct class combinations (yearOfStudy, branch, section)
+
+// New optimized endpoint for HOD dashboard
+exports.getHodDashboardData = async (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({
+      success: false,
+      message: "Date parameter is required",
+    });
+  }
+
+  try {
+    // Get all distinct classes first
+    const distinctClasses = await Student.aggregate([
+      {
+        $match: {
+          yearOfStudy: {
+            $exists: true,
+            $ne: null,
+            $ne: "",
+            $ne: "yearOfStudy",
+          },
+          branch: { $exists: true, $ne: null, $ne: "", $ne: "branch" },
+          section: { $exists: true, $ne: null, $ne: "", $ne: "section" },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            yearOfStudy: "$yearOfStudy",
+            branch: "$branch",
+            section: "$section",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          yearOfStudy: "$_id.yearOfStudy",
+          branch: "$_id.branch",
+          section: "$_id.section",
+        },
+      },
+      {
+        $sort: {
+          yearOfStudy: 1,
+          branch: 1,
+          section: 1,
+        },
+      },
+    ]);
+
+    // Get all attendance records for the date in one query
+    const allAttendanceRecords = await Attendance.find({ date }).select(
+      "rollNo status yearOfStudy branch section leaveCount"
+    );
+
+    // Get all students in one query
+    const allStudents = await Student.find({
+      $or: distinctClasses.map((cls) => ({
+        yearOfStudy: cls.yearOfStudy,
+        branch: cls.branch,
+        section: cls.section,
+      })),
+    }).select("rollNo name yearOfStudy branch section");
+
+    // Process data for each class
+    const dashboardData = distinctClasses.map((cls) => {
+      // Get students for this class
+      const classStudents = allStudents.filter(
+        (student) =>
+          student.yearOfStudy === cls.yearOfStudy &&
+          student.branch === cls.branch &&
+          student.section === cls.section
+      );
+
+      // Get attendance records for this class
+      const classAttendance = allAttendanceRecords.filter(
+        (record) =>
+          record.yearOfStudy === cls.yearOfStudy &&
+          record.branch === cls.branch &&
+          record.section === cls.section
+      );
+
+      // Check if attendance is marked
+      const isAttendanceMarked = classAttendance.length > 0;
+
+      if (!isAttendanceMarked) {
+        return {
+          yearOfStudy: cls.yearOfStudy,
+          branch: cls.branch,
+          section: cls.section,
+          status: "not_marked",
+          absentStudents: [],
+          totalStudents: classStudents.length,
+        };
+      }
+
+      // Get absent students with leave counts
+      const absentStudents = classStudents
+        .map((student) => {
+          const attendanceRecord = classAttendance.find(
+            (record) => record.rollNo === student.rollNo
+          );
+
+          if (attendanceRecord && attendanceRecord.status === "Absent") {
+            return {
+              rollNo: student.rollNo,
+              name: student.name,
+              leaveCount: attendanceRecord.leaveCount || 0,
+            };
+          }
+          return null;
+        })
+        .filter((student) => student !== null);
+
+      return {
+        yearOfStudy: cls.yearOfStudy,
+        branch: cls.branch,
+        section: cls.section,
+        status: "marked",
+        absentStudents,
+        totalStudents: classStudents.length,
+      };
+    });
+
+    res.json({
+      success: true,
+      date,
+      data: dashboardData,
+    });
+  } catch (error) {
+    console.error("Error fetching HOD dashboard data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching dashboard data",
+      error: error.message,
+    });
+  }
+};
