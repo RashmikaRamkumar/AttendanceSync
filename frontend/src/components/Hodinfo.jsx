@@ -154,7 +154,8 @@ const Hodinfo = () => {
                   onClick={() => handleExpand(idx)}
                 >
                   <div className="text-lg font-semibold text-gray-800">
-                    {course.yearOfStudy} - {course.branch} - {course.section}
+                    {course.yearOfStudy} - {course.branch}
+                    {course.section !== "NIL" ? ` - ${course.section}` : ""}
                   </div>
                   <div className="flex gap-3 items-center">
                     {course.status === "not_marked" ? (
