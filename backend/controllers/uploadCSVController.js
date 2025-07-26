@@ -162,6 +162,7 @@ exports.addStudent = async (req, res) => {
         if (newRecords.length > 0) {
           const insertResult = await Student.insertMany(newRecords, {
             ordered: false, // Continue even if some fail
+            lean: true, // This prevents Mongoose from adding __v field
           });
           insertedCount = insertResult.length;
         }

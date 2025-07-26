@@ -23,6 +23,7 @@ const attendanceSchema = new mongoose.Schema(
   },
   {
     versionKey: false, // This disables the __v field
+    timestamps: false, // This disables createdAt and updatedAt fields
   }
 );
 

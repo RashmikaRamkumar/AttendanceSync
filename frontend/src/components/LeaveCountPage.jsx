@@ -9,9 +9,9 @@ const LeaveCountPage = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
-    yearOfStudy: "II",
-    branch: "AIDS",
-    section: "B",
+    yearOfStudy: "Select Year",
+    branch: "Select Branch",
+    section: "Select Section",
   });
 
   // New state for distinct classes
