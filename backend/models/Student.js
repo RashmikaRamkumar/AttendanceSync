@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define the Student Schema
-const studentSchema = new mongoose.Schema({
+const studentSchema = new mongoose.Schema(
+  {
     rollNo: String,
     name: String,
     hostellerDayScholar: String,
@@ -11,9 +12,13 @@ const studentSchema = new mongoose.Schema({
     section: String,
     parentMobileNo: String,
     studentMobileNo: String,
-    superPacc : String,
-});
+    superPacc: String,
+  },
+  {
+    versionKey: false, // This disables the __v field
+  }
+);
 
 // Create and export the Student model
-const Student = mongoose.model('Student', studentSchema);
+const Student = mongoose.model("Student", studentSchema);
 module.exports = Student;

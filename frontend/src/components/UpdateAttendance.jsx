@@ -299,16 +299,6 @@ function UpdateAttendance() {
               }}
             />
             <Dropdown
-              label="Section"
-              value={section}
-              options={getUniqueSections()}
-              isLoading={isLoadingClasses}
-              onChange={(e) => {
-                setSection(e.target.value);
-                fetchStudentData();
-              }}
-            />
-            <Dropdown
               label="Branch"
               value={branch}
               options={getUniqueBranches()}
@@ -316,6 +306,16 @@ function UpdateAttendance() {
               onChange={(e) => {
                 fetchStudentData();
                 setBranch(e.target.value);
+              }}
+            />
+            <Dropdown
+              label="Section"
+              value={section}
+              options={getUniqueSections()}
+              isLoading={isLoadingClasses}
+              onChange={(e) => {
+                setSection(e.target.value);
+                fetchStudentData();
               }}
             />
           </div>
