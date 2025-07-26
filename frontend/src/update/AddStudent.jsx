@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   UserPlus,
@@ -8,7 +8,7 @@ import {
   Upload,
 } from "lucide-react";
 import UploadCsv from "./UploadCsv";
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function AddStudent() {
   const [isIndividualForm, setIsIndividualForm] = useState(true);
@@ -28,6 +28,53 @@ function AddStudent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // New state for distinct classes
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
+  // Function to fetch distinct classes from backend
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique values for dropdowns
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  const getUniqueBranches = () => {
+    const branches = [...new Set(distinctClasses.map((cls) => cls.branch))];
+    return branches.sort();
+  };
+
+  const getUniqueSections = () => {
+    const sections = [...new Set(distinctClasses.map((cls) => cls.section))];
+    return sections.sort();
+  };
+
+  // Fetch distinct classes on component mount
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -81,12 +128,12 @@ function AddStudent() {
 
   return (
     <div className="h-[calc(100vh-5rem)] overflow-hidden bg-slate-50">
-      <div className="h-full max-w-4xl px-4 py-4 mx-auto">
+      <div className="px-4 py-4 mx-auto max-w-4xl h-full">
         {/* Header Section */}
         <div className="mb-6">
-          <div className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm border-slate-200">
+          <div className="flex justify-between items-center p-4 bg-white rounded-lg border shadow-sm border-slate-200">
             <h1 className="flex items-center text-xl font-semibold text-slate-800">
-              <UserPlus className="w-5 h-5 mr-2 text-slate-600" />
+              <UserPlus className="mr-2 w-5 h-5 text-slate-600" />
               Add New Student
             </h1>
 
@@ -121,17 +168,17 @@ function AddStudent() {
         {/* Main Content */}
         <div className="h-[calc(100%-6rem)] overflow-auto">
           {isIndividualForm ? (
-            <div className="p-6 bg-white border rounded-lg shadow-sm border-slate-200">
+            <div className="p-6 bg-white rounded-lg border shadow-sm border-slate-200">
               {error && (
-                <div className="flex items-center p-3 mb-4 text-red-700 border border-red-100 rounded-md bg-red-50">
-                  <AlertCircle className="flex-shrink-0 w-4 h-4 mr-2" />
+                <div className="flex items-center p-3 mb-4 text-red-700 bg-red-50 rounded-md border border-red-100">
+                  <AlertCircle className="flex-shrink-0 mr-2 w-4 h-4" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}
 
               {success && (
-                <div className="flex items-center p-3 mb-4 text-green-700 border border-green-100 rounded-md bg-green-50">
-                  <CheckCircle className="flex-shrink-0 w-4 h-4 mr-2" />
+                <div className="flex items-center p-3 mb-4 text-green-700 bg-green-50 rounded-md border border-green-100">
+                  <CheckCircle className="flex-shrink-0 mr-2 w-4 h-4" />
                   <p className="text-sm">Student created successfully!</p>
                 </div>
               )}
@@ -153,7 +200,7 @@ function AddStudent() {
                       value={formData.rollNo}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       placeholder="Enter roll number"
                     />
                   </div>
@@ -173,7 +220,7 @@ function AddStudent() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       placeholder="Enter full name"
                     />
                   </div>
@@ -191,7 +238,7 @@ function AddStudent() {
                       name="hostellerDayScholar"
                       value={formData.hostellerDayScholar}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       required
                     >
                       <option value="">Select Type</option>
@@ -213,7 +260,7 @@ function AddStudent() {
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       required
                     >
                       <option value="">Select Gender</option>
@@ -235,13 +282,18 @@ function AddStudent() {
                       name="yearOfStudy"
                       value={formData.yearOfStudy}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      disabled={isLoadingClasses}
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                       required
                     >
-                      <option value="">Select Year</option>
-                      <option value="II">II</option>
-                      <option value="III">III</option>
-                      <option value="IV">IV</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Year"}
+                      </option>
+                      {getUniqueYears().map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -258,12 +310,18 @@ function AddStudent() {
                       name="branch"
                       value={formData.branch}
                       onChange={handleChange}
+                      disabled={isLoadingClasses}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                     >
-                      <option value="">Select Branch</option>
-                      <option value="AIDS">AI & DS</option>
-                      <option value="AIML">AI & ML</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Branch"}
+                      </option>
+                      {getUniqueBranches().map((branchOption) => (
+                        <option key={branchOption} value={branchOption}>
+                          {branchOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -280,14 +338,18 @@ function AddStudent() {
                       name="section"
                       value={formData.section}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      disabled={isLoadingClasses}
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                       required
                     >
-                      <option value="">Select Section</option>
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                      <option value="D">D</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Section"}
+                      </option>
+                      {getUniqueSections().map((sectionOption) => (
+                        <option key={sectionOption} value={sectionOption}>
+                          {sectionOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -305,7 +367,7 @@ function AddStudent() {
                       name="parentMobileNo"
                       value={formData.parentMobileNo}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       placeholder="Enter parent's mobile number"
                     />
                   </div>
@@ -324,7 +386,7 @@ function AddStudent() {
                       name="studentMobileNo"
                       value={formData.studentMobileNo}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
                       placeholder="Enter student's mobile number"
                     />
                   </div>
@@ -338,7 +400,7 @@ function AddStudent() {
                     name="superPacc"
                     checked={formData.superPacc}
                     onChange={handleChange}
-                    className="w-4 h-4 border-gray-300 rounded text-slate-800 focus:ring-slate-500"
+                    className="w-4 h-4 rounded border-gray-300 text-slate-800 focus:ring-slate-500"
                   />
                   <label
                     htmlFor="superPacc"
@@ -353,16 +415,16 @@ function AddStudent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center px-4 py-2 text-sm text-white transition-colors rounded-md shadow-sm bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-slate-400"
+                    className="flex items-center px-4 py-2 text-sm text-white rounded-md shadow-sm transition-colors bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-slate-400"
                   >
                     {loading ? (
                       <>
-                        <Loader className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader className="mr-2 w-4 h-4 animate-spin" />
                         Creating...
                       </>
                     ) : (
                       <>
-                        <UserPlus className="w-4 h-4 mr-2" />
+                        <UserPlus className="mr-2 w-4 h-4" />
                         Add Student
                       </>
                     )}
@@ -371,7 +433,7 @@ function AddStudent() {
               </form>
             </div>
           ) : (
-            <div className="p-6 bg-white border rounded-lg shadow-sm border-slate-200">
+            <div className="p-6 bg-white rounded-lg border shadow-sm border-slate-200">
               <UploadCsv />
             </div>
           )}
@@ -382,4 +444,3 @@ function AddStudent() {
 }
 
 export default AddStudent;
-

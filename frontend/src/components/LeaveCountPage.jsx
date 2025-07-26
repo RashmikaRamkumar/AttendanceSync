@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Calendar, Filter } from "lucide-react";
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const LeaveCountPage = () => {
   const [studentsData, setStudentsData] = useState([]);
@@ -14,16 +14,60 @@ const LeaveCountPage = () => {
     section: "B",
   });
 
+  // New state for distinct classes
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
+  // Function to fetch distinct classes from backend
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique values for dropdowns
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  const getUniqueBranches = () => {
+    const branches = [...new Set(distinctClasses.map((cls) => cls.branch))];
+    return branches.sort();
+  };
+
+  const getUniqueSections = () => {
+    const sections = [...new Set(distinctClasses.map((cls) => cls.section))];
+    return sections.sort();
+  };
+
+  // Fetch distinct classes on component mount
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
+
   const fetchStudentsWithLeaveCount = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(
-        `${backendURL}/api/students/leaves`,
-        {
-          params: filters,
-        }
-      );
+      const response = await axios.get(`${backendURL}/api/students/leaves`, {
+        params: filters,
+      });
       setStudentsData(response.data.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch students data");
@@ -84,12 +128,17 @@ const LeaveCountPage = () => {
                   name="yearOfStudy"
                   value={filters.yearOfStudy}
                   onChange={handleInputChange}
-                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500"
+                  disabled={isLoadingClasses}
+                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200"
                 >
-                  <option value="I">I</option>
-                  <option value="II">II</option>
-                  <option value="III">III</option>
-                  <option value="IV">IV</option>
+                  <option value="">
+                    {isLoadingClasses ? "Loading..." : "Select Year"}
+                  </option>
+                  {getUniqueYears().map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -105,10 +154,17 @@ const LeaveCountPage = () => {
                   name="branch"
                   value={filters.branch}
                   onChange={handleInputChange}
-                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500"
+                  disabled={isLoadingClasses}
+                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200"
                 >
-                  <option value="AIDS">AI & DS</option>
-                  <option value="AIML">AI & ML</option>
+                  <option value="">
+                    {isLoadingClasses ? "Loading..." : "Select Branch"}
+                  </option>
+                  {getUniqueBranches().map((branchOption) => (
+                    <option key={branchOption} value={branchOption}>
+                      {branchOption}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -124,12 +180,17 @@ const LeaveCountPage = () => {
                   name="section"
                   value={filters.section}
                   onChange={handleInputChange}
-                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500"
+                  disabled={isLoadingClasses}
+                  className="p-2 w-full text-gray-800 bg-white rounded-md border-0 md:p-3 focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200"
                 >
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
+                  <option value="">
+                    {isLoadingClasses ? "Loading..." : "Select Section"}
+                  </option>
+                  {getUniqueSections().map((sectionOption) => (
+                    <option key={sectionOption} value={sectionOption}>
+                      {sectionOption}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -295,5 +356,3 @@ const LeaveCountPage = () => {
 };
 
 export default LeaveCountPage;
-
-

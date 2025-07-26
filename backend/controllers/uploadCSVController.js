@@ -46,10 +46,9 @@ exports.addStudent = async (req, res) => {
           });
         }
 
-        let insertedCount = 0;
-        let updatedCount = 0;
-        let skippedCount = 0;
-        let skippedRows = [];
+        // Filter valid records and prepare data
+        const validRecords = [];
+        const invalidRecords = [];
 
         for (const row of results) {
           const {
@@ -64,9 +63,9 @@ exports.addStudent = async (req, res) => {
             studentMobileNo,
             superPacc,
           } = row;
+
           if (!rollNo || !name) {
-            skippedCount++;
-            skippedRows.push({
+            invalidRecords.push({
               rollNo,
               name,
               reason: "Missing rollNo or name",
@@ -74,71 +73,126 @@ exports.addStudent = async (req, res) => {
             continue;
           }
 
-          const existingStudent = await Student.findOne({ rollNo });
+          validRecords.push({
+            rollNo,
+            name,
+            hostellerDayScholar,
+            gender,
+            yearOfStudy,
+            branch,
+            section,
+            parentMobileNo,
+            studentMobileNo,
+            superPacc,
+          });
+        }
+
+        if (validRecords.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "No valid records found in CSV file",
+          });
+        }
+
+        // Extract all roll numbers for batch query
+        const rollNumbers = validRecords.map((record) => record.rollNo);
+
+        // Batch fetch existing students
+        const existingStudents = await Student.find({
+          rollNo: { $in: rollNumbers },
+        }).select(
+          "rollNo name hostellerDayScholar gender yearOfStudy branch section parentMobileNo studentMobileNo superPacc"
+        );
+
+        // Create a map for quick lookup
+        const existingStudentsMap = new Map();
+        existingStudents.forEach((student) => {
+          existingStudentsMap.set(student.rollNo, student);
+        });
+
+        // Separate records into new, updated, and unchanged
+        const newRecords = [];
+        const updateOperations = [];
+        const unchangedRecords = [];
+
+        for (const record of validRecords) {
+          const existingStudent = existingStudentsMap.get(record.rollNo);
+
           if (!existingStudent) {
-            // Insert new student
-            await Student.create({
-              rollNo,
-              name,
-              hostellerDayScholar,
-              gender,
-              yearOfStudy,
-              branch,
-              section,
-              parentMobileNo,
-              studentMobileNo,
-              superPacc,
-            });
-            insertedCount++;
+            // New student
+            newRecords.push(record);
           } else {
             // Check if any field has changed
             const hasChanges =
-              existingStudent.name !== name ||
-              existingStudent.hostellerDayScholar !== hostellerDayScholar ||
-              existingStudent.gender !== gender ||
-              existingStudent.yearOfStudy !== yearOfStudy ||
-              existingStudent.branch !== branch ||
-              existingStudent.section !== section ||
-              existingStudent.parentMobileNo !== parentMobileNo ||
-              existingStudent.studentMobileNo !== studentMobileNo ||
-              existingStudent.superPacc !== superPacc;
+              existingStudent.name !== record.name ||
+              existingStudent.hostellerDayScholar !==
+                record.hostellerDayScholar ||
+              existingStudent.gender !== record.gender ||
+              existingStudent.yearOfStudy !== record.yearOfStudy ||
+              existingStudent.branch !== record.branch ||
+              existingStudent.section !== record.section ||
+              existingStudent.parentMobileNo !== record.parentMobileNo ||
+              existingStudent.studentMobileNo !== record.studentMobileNo ||
+              existingStudent.superPacc !== record.superPacc;
 
             if (hasChanges) {
-              // Update existing student with new data
-              existingStudent.name = name;
-              existingStudent.hostellerDayScholar = hostellerDayScholar;
-              existingStudent.gender = gender;
-              existingStudent.yearOfStudy = yearOfStudy;
-              existingStudent.branch = branch;
-              existingStudent.section = section;
-              existingStudent.parentMobileNo = parentMobileNo;
-              existingStudent.studentMobileNo = studentMobileNo;
-              existingStudent.superPacc = superPacc;
-              await existingStudent.save();
-              updatedCount++;
+              // Prepare update operation
+              updateOperations.push({
+                updateOne: {
+                  filter: { rollNo: record.rollNo },
+                  update: { $set: record },
+                },
+              });
             } else {
-              // No changes - skip (duplicate)
-              skippedCount++;
-              skippedRows.push({
-                rollNo,
-                name,
+              // No changes
+              unchangedRecords.push({
+                rollNo: record.rollNo,
+                name: record.name,
                 reason: "Duplicate (no changes)",
               });
             }
           }
         }
 
+        // Perform bulk operations
+        let insertedCount = 0;
+        let updatedCount = 0;
+
+        // Bulk insert new records
+        if (newRecords.length > 0) {
+          const insertResult = await Student.insertMany(newRecords, {
+            ordered: false, // Continue even if some fail
+          });
+          insertedCount = insertResult.length;
+        }
+
+        // Bulk update existing records
+        if (updateOperations.length > 0) {
+          const updateResult = await Student.bulkWrite(updateOperations, {
+            ordered: false, // Continue even if some fail
+          });
+          updatedCount = updateResult.modifiedCount || updateOperations.length;
+        }
+
+        const skippedCount = invalidRecords.length + unchangedRecords.length;
+        const allSkippedRows = [...invalidRecords, ...unchangedRecords];
+
         res.json({
           success: true,
           message: `${insertedCount} new student(s) inserted, ${updatedCount} updated, ${skippedCount} skipped (duplicates or missing data).`,
-          details: { insertedCount, updatedCount, skippedCount, skippedRows },
+          details: {
+            insertedCount,
+            updatedCount,
+            skippedCount,
+            skippedRows: allSkippedRows,
+          },
         });
       } catch (err) {
         console.error("Upload error:", err);
         res.status(500).json({
           success: false,
           message: "Failed to upload to MongoDB.",
-          error: err.message, // Add this for debugging
+          error: err.message,
         });
       } finally {
         // Cleanup temp file

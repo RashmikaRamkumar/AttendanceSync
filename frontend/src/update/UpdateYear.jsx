@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, Users, Database, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function UpdateYear() {
@@ -8,6 +9,42 @@ function UpdateYear() {
   const [fromYear, setFromYear] = useState("");
   const [toYear, setToYear] = useState("");
   const [message, setMessage] = useState({ text: "", type: "" });
+
+  // Distinct classes state
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
+  // Fetch distinct classes
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique years
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
 
   const handleUpdateYear = async () => {
     if (!fromYear || !toYear) {
@@ -35,7 +72,6 @@ function UpdateYear() {
         text: data.message || "Year updated successfully",
         type: "success",
       });
-      // Clear form
       setFromYear("");
       setToYear("");
     } catch (err) {
@@ -98,13 +134,17 @@ function UpdateYear() {
                   <select
                     value={fromYear}
                     onChange={(e) => setFromYear(e.target.value)}
-                    className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    disabled={isLoadingClasses}
+                    className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                   >
-                    <option value="">Select Year</option>
-                    <option value="I">I</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
-                    <option value="IV">IV</option>
+                    <option value="">
+                      {isLoadingClasses ? "Loading..." : "Select Year"}
+                    </option>
+                    {getUniqueYears().map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -115,13 +155,17 @@ function UpdateYear() {
                   <select
                     value={toYear}
                     onChange={(e) => setToYear(e.target.value)}
-                    className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    disabled={isLoadingClasses}
+                    className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                   >
-                    <option value="">Select Year</option>
-                    <option value="I">I</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
-                    <option value="IV">IV</option>
+                    <option value="">
+                      {isLoadingClasses ? "Loading..." : "Select Year"}
+                    </option>
+                    {getUniqueYears().map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -142,9 +186,9 @@ function UpdateYear() {
               <div className="flex justify-end">
                 <button
                   onClick={handleUpdateYear}
-                  disabled={!fromYear || !toYear}
+                  disabled={!fromYear || !toYear || isLoadingClasses}
                   className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                    !fromYear || !toYear
+                    !fromYear || !toYear || isLoadingClasses
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-slate-800 hover:bg-slate-700"
                   }`}

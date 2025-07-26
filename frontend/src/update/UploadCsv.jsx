@@ -1,21 +1,32 @@
 import React, { useState, useRef } from "react";
-import { Upload, AlertCircle, CheckCircle, Download, X } from "lucide-react";
+import {
+  Upload,
+  AlertCircle,
+  CheckCircle,
+  Download,
+  X,
+  Users,
+  UserPlus,
+  UserCheck,
+  UserX,
+} from "lucide-react";
 
 function UploadCsv() {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // 'success' or 'error'
   const [showLoader, setShowLoader] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalData, setModalData] = useState({
+    type: "",
+    message: "",
+    details: null,
+  });
   const backendURL = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
-    setMessage("");
-    setMessageType("");
-    setShowResult(false);
+    setShowModal(false);
   };
 
   const handleDrop = (e) => {
@@ -23,17 +34,13 @@ function UploadCsv() {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && droppedFile.type === "text/csv") {
       setFile(droppedFile);
-      setMessage("");
-      setMessageType("");
-      setShowResult(false);
+      setShowModal(false);
     }
   };
 
   const handleRemoveFile = () => {
     setFile(null);
-    setMessage("");
-    setMessageType("");
-    setShowResult(false);
+    setShowModal(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -42,7 +49,7 @@ function UploadCsv() {
     if (!file) return;
     setIsUploading(true);
     setShowLoader(true);
-    setShowResult(false);
+    setShowModal(false);
     const formData = new FormData();
     formData.append("csvfile", file);
     try {
@@ -54,18 +61,30 @@ function UploadCsv() {
       if (!res.ok || !data.success) {
         throw new Error(data.message || `HTTP error! status: ${res.status}`);
       }
-      setMessage(data.message);
-      setMessageType("success");
-      setShowResult(true);
-      setTimeout(() => setShowResult(false), 4000);
+
+      // Enhanced success message with details
+      let detailedMessage = data.message;
+      if (data.details) {
+        const { insertedCount, updatedCount, skippedCount } = data.details;
+        detailedMessage = `✅ Upload completed!\n\n📊 Summary:\n• ${insertedCount} new students added\n• ${updatedCount} students updated\n• ${skippedCount} records skipped (duplicates/invalid)`;
+      }
+
+      setModalData({
+        type: "success",
+        message: detailedMessage,
+        details: data.details,
+      });
+      setShowModal(true);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
-      setMessage(
-        err.message || "Upload failed. Please check your file and try again."
-      );
-      setMessageType("error");
-      setShowResult(true);
+      setModalData({
+        type: "error",
+        message:
+          err.message || "Upload failed. Please check your file and try again.",
+        details: null,
+      });
+      setShowModal(true);
     } finally {
       setIsUploading(false);
       setShowLoader(false);
@@ -76,18 +95,18 @@ function UploadCsv() {
     // Create a mock CSV data matching the full schema and using real student data
     const mockData =
       "rollNo,name,hostellerDayScholar,gender,yearOfStudy,branch,section,parentMobileNo,studentMobileNo,superPacc\n" +
-      "24ALL065,PRADEEP V,HOSTEL,MALE,II YEAR,AIML,NIL,8925643127,8056668519,NO\n" +
-      "24ALL066,VISSSAL BAARATH C J,DAY SCHOLAR,MALE,II YEAR,AIML,NIL,8248556809,9842395858,NO\n" +
-      "24ALR001,ABISHEK M,DAY SCHOLAR,MALE,II YEAR,AIML,NIL,7397178036,9952827705,NO\n" +
-      "24ALR002,ADHITHYA N,HOSTEL,MALE,II YEAR,AIML,NIL,9751555227,9659515277,NO\n" +
-      "24ALR003,ADITHYAN S A,HOSTEL,MALE,II YEAR,AIML,NIL,9952476186,8122343145,NO\n" +
-      "24ALR004,BHARAT HARI S,HOSTEL,MALE,II YEAR,AIML,NIL,9443715859,9443725157,NO\n" +
-      "24ALR005,BHARATH S,HOSTEL ,MALE,II YEAR,AIML,NIL,7639892278,9361512278,NO\n" +
-      "24ALR006,BHOOMIKA J,DAY SCHOLAR,FEMALE ,II YEAR,AIML,NIL,9789553243,9842553243,NO\n" +
-      "24ALR007,DHANISHA P,DAY SCHOLAR ,FEMALE ,II YEAR,AIML,NIL,9500237371,9566979426,NO\n" +
-      "24ALR008,DHANUSHIYAA S,DAY SCHOLAR ,FEMALE,II YEAR,AIML,NIL,9385976412,7373191929,NO\n" +
-      "24ALR009,DHARSHINI B,HOSTEL,FEMALE,II YEAR,AIML,NIL,6369505522,9486676045,NO\n" +
-      "24ALR010,DHARSHINI P R,DAY SCHOLAR ,FEMALE,II YEAR,AIML,NIL,6379625204,9600580880,NO";
+      "24ALL065,PRADEEP V,HOSTEL,MALE,II,AIML,NIL,8925643127,8056668519,NO\n" +
+      "24ALL066,VISSSAL BAARATH C J,DAY SCHOLAR,MALE,II,AIML,NIL,8248556809,9842395858,NO\n" +
+      "24ALR001,ABISHEK M,DAY SCHOLAR,MALE,II,AIML,NIL,7 397178036,9952827705,NO\n" +
+      "24ALR002,ADHITHYA N,HOSTEL,MALE,II,AIML,NIL,9751555227,9659515277,NO\n" +
+      "24ALR003,ADITHYAN S A,HOSTEL,MALE,II,AIML,NIL,9952476186,8122343145,NO\n" +
+      "24ALR004,BHARAT HARI S,HOSTEL,MALE,II,AIML,NIL,9443715859,9443725157,NO\n" +
+      "24ALR005,BHARATH S,HOSTEL ,MALE,II,AIML,NIL,7639892278,9361512278,NO\n" +
+      "24ALR006,BHOOMIKA J,DAY SCHOLAR,FEMALE ,II,AI ML,NIL,9789553243,9842553243,NO\n" +
+      "24ALR007,DHANISHA P,DAY SCHOLAR ,FEMALE ,II,AIML,NIL,9500237371,9566979426,NO\n" +
+      "24ALR008,DHANUSHIYAA S,DAY SCHOLAR ,FEMALE,II,AIML,NIL,9385976412,7373191929,NO\n" +
+      "24ALR009,DHARSHINI B,HOSTEL,FEMALE,II,AIML,NIL,6369505522,9486676045,NO\n" +
+      "24ALR010,DHARSHINI P R,DAY SCHOLAR ,FEMALE,II,AIML,NIL,6379625204,9600580880,NO";
     const blob = new Blob([mockData], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -107,7 +126,10 @@ function UploadCsv() {
           <div className="flex flex-col items-center">
             <div className="mb-4 loader" />
             <span className="text-lg font-semibold text-white animate-pulse">
-              Uploading...
+              Processing CSV data...
+            </span>
+            <span className="mt-2 text-sm text-white/80">
+              This may take a few moments for large files
             </span>
           </div>
         </div>
@@ -179,21 +201,91 @@ function UploadCsv() {
           </button>
         </div>
       </form>
-      {/* Upload result message */}
-      {showResult && message && (
-        <div
-          className={`mt-4 p-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
-            messageType === "success"
-              ? "bg-green-50 text-green-700 border border-green-100 animate-fade-in"
-              : "bg-red-50 text-red-700 border border-red-100 animate-fade-in"
-          }`}
-        >
-          {messageType === "success" ? (
-            <CheckCircle className="w-5 h-5 text-green-500 animate-pop-in" />
-          ) : (
-            <AlertCircle className="w-5 h-5 text-red-500 animate-pop-in" />
-          )}
-          <p className="text-sm font-medium">{message}</p>
+      {/* Cool Result Modal */}
+      {showModal && (
+        <div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/50">
+          <div className="p-8 mx-4 w-96 bg-white rounded-xl shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              {modalData.type === "success" ? (
+                <div className="flex gap-3 items-center">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-green-600">
+                    Success!
+                  </h2>
+                </div>
+              ) : (
+                <div className="flex gap-3 items-center">
+                  <div className="p-3 bg-red-100 rounded-full">
+                    <AlertCircle className="w-8 h-8 text-red-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-red-600">Failed!</h2>
+                </div>
+              )}
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 text-gray-400 rounded-full transition-colors hover:text-gray-600 hover:bg-gray-100"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="text-center">
+              <h3 className="mb-6 text-xl font-semibold text-gray-800">
+                {modalData.type === "success"
+                  ? "Upload Complete"
+                  : "Upload Failed"}
+              </h3>
+
+              {modalData.type === "success" && modalData.details && (
+                <div className="mb-6 space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex gap-3 items-center">
+                      <UserPlus className="w-6 h-6 text-green-600" />
+                      <span className="text-lg font-medium text-gray-700">
+                        New Students
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold text-green-600">
+                      {modalData.details.insertedCount}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex gap-3 items-center">
+                      <UserCheck className="w-6 h-6 text-blue-600" />
+                      <span className="text-lg font-medium text-gray-700">
+                        Updated
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">
+                      {modalData.details.updatedCount}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <div className="flex gap-3 items-center">
+                      <UserX className="w-6 h-6 text-orange-600" />
+                      <span className="text-lg font-medium text-gray-700">
+                        Skipped
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold text-orange-600">
+                      {modalData.details.skippedCount}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-6 py-3 w-full text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg transition-all duration-200 transform hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:scale-105"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

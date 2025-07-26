@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Trash2,
   Users,
@@ -9,6 +9,7 @@ import {
   Loader,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Added axios import
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function DeleteStudents() {
@@ -22,6 +23,53 @@ function DeleteStudents() {
   const [isLoading, setIsLoading] = useState(false);
   const [rollNoSearchResults, setRollNoSearchResults] = useState([]);
   const [showRollNoDropdown, setShowRollNoDropdown] = useState(false);
+
+  // New state for distinct classes
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
+  // Function to fetch distinct classes from backend
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique values for dropdowns
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  const getUniqueBranches = () => {
+    const branches = [...new Set(distinctClasses.map((cls) => cls.branch))];
+    return branches.sort();
+  };
+
+  const getUniqueSections = () => {
+    const sections = [...new Set(distinctClasses.map((cls) => cls.section))];
+    return sections.sort();
+  };
+
+  // Fetch distinct classes on component mount
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
 
   // Function to search students by roll number for suggestions
   const searchStudentsByRollNo = async (rollNo) => {
@@ -244,12 +292,17 @@ function DeleteStudents() {
                     <select
                       value={yearOfStudy}
                       onChange={(e) => setYearOfStudy(e.target.value)}
-                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      disabled={isLoadingClasses}
+                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                     >
-                      <option value="">Select Year</option>
-                      <option value="II">II</option>
-                      <option value="III">III</option>
-                      <option value="IV">IV</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Year"}
+                      </option>
+                      {getUniqueYears().map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -260,12 +313,17 @@ function DeleteStudents() {
                     <select
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
-                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      disabled={isLoadingClasses}
+                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                     >
-                      <option value="">Select Branch</option>
-                      <option value="AIDS">AI & DS</option>
-                      {/* <option value="CSE">CSE</option> */}
-                      <option value="AIML">AI & ML</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Branch"}
+                      </option>
+                      {getUniqueBranches().map((branchOption) => (
+                        <option key={branchOption} value={branchOption}>
+                          {branchOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -276,13 +334,17 @@ function DeleteStudents() {
                     <select
                       value={section}
                       onChange={(e) => setSection(e.target.value)}
-                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      disabled={isLoadingClasses}
+                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
                     >
-                      <option value="">Select Section</option>
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                      <option value="D">D</option>
+                      <option value="">
+                        {isLoadingClasses ? "Loading..." : "Select Section"}
+                      </option>
+                      {getUniqueSections().map((sectionOption) => (
+                        <option key={sectionOption} value={sectionOption}>
+                          {sectionOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>

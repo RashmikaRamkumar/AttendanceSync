@@ -20,6 +20,10 @@ function Absentees() {
   const [section, setSection] = useState("nan");
   const [selectedCourse, setSelectedCourse] = useState("");
 
+  // New state for distinct classes
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
   const [rollNumbers, setRollNumbers] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false); // For Confirm button confirmation popup
   const [showMarkPresentPopup, setShowMarkPresentPopup] = useState(false); // For Mark Present button confirmation popup
@@ -35,6 +39,8 @@ function Absentees() {
   const [errorMessage, setErrorMessage] = useState(""); // State to store the error message
   const [marksuperpacc, setmarksuperpacc] = useState(false);
 
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   const formatDate = (dateString) => {
     const dateObj = new Date(dateString);
     const day = String(dateObj.getDate()).padStart(2, "0");
@@ -42,6 +48,50 @@ function Absentees() {
     const year = dateObj.getFullYear();
     return `${day}-${month}-${year}`;
   };
+
+  // Function to fetch distinct classes from backend
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+      toast.error("Failed to load class options", { autoClose: 3000 });
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique values for dropdowns
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  const getUniqueBranches = () => {
+    const branches = [...new Set(distinctClasses.map((cls) => cls.branch))];
+    return branches.sort();
+  };
+
+  const getUniqueSections = () => {
+    const sections = [...new Set(distinctClasses.map((cls) => cls.section))];
+    return sections.sort();
+  };
+
+  // Fetch distinct classes on component mount
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
 
   useEffect(() => {
     // Clear selected roll numbers whenever year, branch, section, or date changes
@@ -69,8 +119,6 @@ function Absentees() {
       setRollNumbers([]);
     }
   }, [yearOfStudy, branch, section, date]);
-
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch roll numbers when parameters change
   const fetchRollNumbers = async (year, branch, section, selectedDate) => {
@@ -374,12 +422,17 @@ function Absentees() {
               id="yearOfStudy"
               value={yearOfStudy}
               onChange={(e) => setYearOfStudy(e.target.value)}
-              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600"
+              disabled={isLoadingClasses}
+              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600 disabled:bg-gray-200"
             >
-              <option value="nan">Year</option>
-              <option value="IV">IV</option>
-              <option value="III">III</option>
-              <option value="II">II</option>
+              <option value="nan">
+                {isLoadingClasses ? "Loading..." : "Year"}
+              </option>
+              {getUniqueYears().map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -394,11 +447,17 @@ function Absentees() {
               id="branch"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
-              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600"
+              disabled={isLoadingClasses}
+              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600 disabled:bg-gray-200"
             >
-              <option value="nan">Branch</option>
-              <option value="AIDS">AIDS</option>
-              <option value="AIML">AIML</option>
+              <option value="nan">
+                {isLoadingClasses ? "Loading..." : "Branch"}
+              </option>
+              {getUniqueBranches().map((branchOption) => (
+                <option key={branchOption} value={branchOption}>
+                  {branchOption}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -413,13 +472,17 @@ function Absentees() {
               id="section"
               value={section}
               onChange={(e) => setSection(e.target.value)}
-              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600"
+              disabled={isLoadingClasses}
+              className="px-4 py-2 w-full text-black bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-gray-600 disabled:bg-gray-200"
             >
-              <option value="nan">Section</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="NIL">NIL</option>
+              <option value="nan">
+                {isLoadingClasses ? "Loading..." : "Section"}
+              </option>
+              {getUniqueSections().map((sectionOption) => (
+                <option key={sectionOption} value={sectionOption}>
+                  {sectionOption}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -609,6 +672,7 @@ function Absentees() {
         onConfirm={handleMarkPresentConfirm}
         onCancel={() => setShowMarkPresentPopup(false)}
       />
+      <ToastContainer />
     </div>
   );
 }

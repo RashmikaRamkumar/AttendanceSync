@@ -22,6 +22,10 @@ function UpdateAttendance() {
   const [attendanceLogs, setAttendanceLogs] = useState([]); // New state for attendance change logs
   const [initialStates, setInitialStates] = useState([]);
 
+  // New state for distinct classes
+  const [distinctClasses, setDistinctClasses] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+
   const authToken = sessionStorage.getItem("authToken");
 
   if (!authToken) {
@@ -32,6 +36,51 @@ function UpdateAttendance() {
     setIsLoading(false);
     return;
   }
+
+  // Function to fetch distinct classes from backend
+  const fetchDistinctClasses = async () => {
+    setIsLoadingClasses(true);
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/students/distinct-classes`
+      );
+      if (response.data.success) {
+        setDistinctClasses(response.data.classes);
+      } else {
+        console.error(
+          "Failed to fetch distinct classes:",
+          response.data.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching distinct classes:", error);
+      toast.error("Failed to load class options", { autoClose: 3000 });
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
+
+  // Extract unique values for dropdowns
+  const getUniqueYears = () => {
+    const years = [...new Set(distinctClasses.map((cls) => cls.yearOfStudy))];
+    return years.sort();
+  };
+
+  const getUniqueBranches = () => {
+    const branches = [...new Set(distinctClasses.map((cls) => cls.branch))];
+    return branches.sort();
+  };
+
+  const getUniqueSections = () => {
+    const sections = [...new Set(distinctClasses.map((cls) => cls.section))];
+    return sections.sort();
+  };
+
+  // Fetch distinct classes on component mount
+  useEffect(() => {
+    fetchDistinctClasses();
+  }, []);
+
   const fetchStudentData = async () => {
     if (
       yearOfStudy === "nan" ||
@@ -242,7 +291,8 @@ function UpdateAttendance() {
             <Dropdown
               label="Year"
               value={yearOfStudy}
-              options={["IV", "III", "II"]}
+              options={getUniqueYears()}
+              isLoading={isLoadingClasses}
               onChange={(e) => {
                 setYearOfStudy(e.target.value);
                 fetchStudentData();
@@ -251,7 +301,8 @@ function UpdateAttendance() {
             <Dropdown
               label="Section"
               value={section}
-              options={["A", "B", "C"]}
+              options={getUniqueSections()}
+              isLoading={isLoadingClasses}
               onChange={(e) => {
                 setSection(e.target.value);
                 fetchStudentData();
@@ -260,7 +311,8 @@ function UpdateAttendance() {
             <Dropdown
               label="Branch"
               value={branch}
-              options={["AIDS", "AIML"]}
+              options={getUniqueBranches()}
+              isLoading={isLoadingClasses}
               onChange={(e) => {
                 fetchStudentData();
                 setBranch(e.target.value);
@@ -426,7 +478,7 @@ function UpdateAttendance() {
   );
 }
 
-function Dropdown({ label, value, options, onChange }) {
+function Dropdown({ label, value, options, onChange, isLoading = false }) {
   return (
     <div className="w-full max-w-[250px]">
       <label htmlFor={label} className="block mb-2 text-white">
@@ -435,9 +487,12 @@ function Dropdown({ label, value, options, onChange }) {
       <select
         value={value}
         onChange={onChange}
-        className="px-4 py-2 w-full text-white bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring focus:ring-gray-600"
+        disabled={isLoading}
+        className="px-4 py-2 w-full text-white bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring focus:ring-gray-600 disabled:bg-gray-500"
       >
-        <option value="nan">Select {label}</option>
+        <option value="nan">
+          {isLoading ? "Loading..." : `Select ${label}`}
+        </option>
         {options.map((option, idx) => (
           <option key={idx} value={option}>
             {option}
