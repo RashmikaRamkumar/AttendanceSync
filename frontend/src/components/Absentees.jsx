@@ -379,7 +379,7 @@ function Absentees() {
               <option value="nan">Year</option>
               <option value="IV">IV</option>
               <option value="III">III</option>
-              <option value="II ">II</option>
+              <option value="II">II</option>
             </select>
           </div>
 
