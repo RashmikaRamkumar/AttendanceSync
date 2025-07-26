@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios"; // Import axios
 import "react-toastify/dist/ReactToastify.css"; // Import the toast CSS
-const backendURL = import.meta.env.VITE_BACKEND_URL; 
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const GenerateReport = () => {
   const [isLoading, setIsLoading] = useState(false); // State to track loading status
@@ -110,8 +110,8 @@ const GenerateReport = () => {
   };
 
   return (
-    <div className="flex items-start justify-center min-h-screen p-6">
-      <div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
+    <div className="flex justify-center items-start p-6 min-h-screen">
+      <div className="p-6 w-full bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
         <h2 className="mb-2 text-2xl font-semibold text-center text-white">
           Download Absentee Report
         </h2>
@@ -129,7 +129,7 @@ const GenerateReport = () => {
             id="date"
             value={date}
             onChange={handleDateChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -145,7 +145,7 @@ const GenerateReport = () => {
             id="gender"
             value={gender}
             onChange={handleGenderChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="MALE">BOYS</option>
@@ -165,7 +165,7 @@ const GenerateReport = () => {
             id="hostellerDayScholar"
             value={hostellerDayScholar}
             onChange={handleHostellerDayScholarChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="HOSTELLER">HOSTELLER</option>
@@ -185,7 +185,7 @@ const GenerateReport = () => {
             id="yearOfStudy"
             value={yearOfStudy}
             onChange={handleYearOfStudyChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="II">Second Year</option>
@@ -206,7 +206,7 @@ const GenerateReport = () => {
             id="branch"
             value={branch}
             onChange={handleBranchChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="AIML">ML</option>
@@ -226,13 +226,13 @@ const GenerateReport = () => {
             id="section"
             value={section}
             onChange={handleSectionChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
-            <option value="-">NA</option>
+            <option value="NIL">NIL</option>
           </select>
         </div>
 
@@ -241,7 +241,7 @@ const GenerateReport = () => {
           onClick={handleDownload}
           className={`w-full px-4 py-2 font-bold text-white transition duration-500 rounded-md shadow  ${
             isLoading
-              ? "bg-gray-600 hover:bg-gray-700 cursor-not-allowed"
+              ? "bg-gray-600 cursor-not-allowed hover:bg-gray-700"
               : "bg-blue-600 hover:scale-105"
           }`}
         >
@@ -251,7 +251,7 @@ const GenerateReport = () => {
         {/* Back button */}
         <button
           onClick={() => navigate(-1)} // Replace with actual back navigation logic
-          className="w-full px-4 py-2 mt-4 font-bold text-white transition duration-500 bg-gray-600 rounded-md shadow hover:scale-105 hover:bg-gray-700"
+          className="px-4 py-2 mt-4 w-full font-bold text-white bg-gray-600 rounded-md shadow transition duration-500 hover:scale-105 hover:bg-gray-700"
         >
           Back
         </button>

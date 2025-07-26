@@ -110,8 +110,21 @@ function Absentees() {
       }
     } catch (error) {
       console.error("Error fetching roll numbers:", error);
-      setErrorMessage("Failed to fetch data. Please try again.");
-      setRollNumbers([]);
+
+      // Handle the specific case when no students are found for the criteria
+      if (error.response?.status === 404) {
+        setErrorMessage(
+          error.response.data.message ||
+            "No students found for the selected criteria."
+        );
+        setRollNumbers([]);
+        setMarkabsentButton(false);
+        setMarkPresentVisible(false);
+        setmarksuperpacc(false);
+      } else {
+        setErrorMessage("Failed to fetch data. Please try again.");
+        setRollNumbers([]);
+      }
     }
   };
 
@@ -366,7 +379,7 @@ function Absentees() {
               <option value="nan">Year</option>
               <option value="IV">IV</option>
               <option value="III">III</option>
-              <option value="II">II</option>
+              <option value="II ">II</option>
             </select>
           </div>
 
@@ -406,7 +419,7 @@ function Absentees() {
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
-              <option value="-">NA</option>
+              <option value="NIL">NIL</option>
             </select>
           </div>
         </div>

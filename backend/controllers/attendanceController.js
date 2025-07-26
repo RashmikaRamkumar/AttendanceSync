@@ -35,7 +35,7 @@ exports.markOnDuty = async (req, res) => {
 
 // 2. Fetch Remaining Students (those not marked as "On Duty")
 
-// Controller function to fetch studeconst mongoose = require('mongoose');nts without attendance on a specified date
+// Controller function to fetch students without attendance on a specified date
 exports.getStudentsWithoutAttendance = async (req, res) => {
   const { yearOfStudy, branch, section, date } = req.query;
 
@@ -57,6 +57,13 @@ exports.getStudentsWithoutAttendance = async (req, res) => {
     }).select("rollNo name -_id"); // Retrieve rollNo and name fields, excluding _id
 
     //console.log("All Students Found:", allStudents);
+
+    // If no students exist for the given criteria, return appropriate message
+    if (allStudents.length === 0) {
+      return res.status(404).json({
+        message: `No students found for ${yearOfStudy} ${branch} ${section}.`,
+      });
+    }
 
     // Fetch students who have an attendance record for the specified date
     const attendanceRecords = await Attendance.find({
@@ -740,4 +747,3 @@ exports.bulkUpdateInfoStatus = async (req, res) => {
 };
 
 // Get distinct class combinations (yearOfStudy, branch, section)
-

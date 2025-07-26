@@ -90,27 +90,41 @@ exports.addStudent = async (req, res) => {
               superPacc,
             });
             insertedCount++;
-          } else if (existingStudent.name === name) {
-            // Duplicate (same rollNo and name)
-            skippedCount++;
-            skippedRows.push({
-              rollNo,
-              name,
-              reason: "Duplicate (same rollNo and name)",
-            });
           } else {
-            // Update existing student (same rollNo, different name)
-            existingStudent.name = name;
-            existingStudent.hostellerDayScholar = hostellerDayScholar;
-            existingStudent.gender = gender;
-            existingStudent.yearOfStudy = yearOfStudy;
-            existingStudent.branch = branch;
-            existingStudent.section = section;
-            existingStudent.parentMobileNo = parentMobileNo;
-            existingStudent.studentMobileNo = studentMobileNo;
-            existingStudent.superPacc = superPacc;
-            await existingStudent.save();
-            updatedCount++;
+            // Check if any field has changed
+            const hasChanges =
+              existingStudent.name !== name ||
+              existingStudent.hostellerDayScholar !== hostellerDayScholar ||
+              existingStudent.gender !== gender ||
+              existingStudent.yearOfStudy !== yearOfStudy ||
+              existingStudent.branch !== branch ||
+              existingStudent.section !== section ||
+              existingStudent.parentMobileNo !== parentMobileNo ||
+              existingStudent.studentMobileNo !== studentMobileNo ||
+              existingStudent.superPacc !== superPacc;
+
+            if (hasChanges) {
+              // Update existing student with new data
+              existingStudent.name = name;
+              existingStudent.hostellerDayScholar = hostellerDayScholar;
+              existingStudent.gender = gender;
+              existingStudent.yearOfStudy = yearOfStudy;
+              existingStudent.branch = branch;
+              existingStudent.section = section;
+              existingStudent.parentMobileNo = parentMobileNo;
+              existingStudent.studentMobileNo = studentMobileNo;
+              existingStudent.superPacc = superPacc;
+              await existingStudent.save();
+              updatedCount++;
+            } else {
+              // No changes - skip (duplicate)
+              skippedCount++;
+              skippedRows.push({
+                rollNo,
+                name,
+                reason: "Duplicate (no changes)",
+              });
+            }
           }
         }
 

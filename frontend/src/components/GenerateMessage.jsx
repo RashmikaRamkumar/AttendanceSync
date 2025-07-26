@@ -111,8 +111,8 @@ const GenerateMessage = () => {
   };
 
   return (
-    <div className="flex items-start justify-center min-h-screen p-6">
-      <div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
+    <div className="flex justify-center items-start p-6 min-h-screen">
+      <div className="p-6 w-full bg-gray-800 rounded-lg shadow-lg sm:w-96 md:w-80 lg:w-96 xl:w-1/3">
         <h2 className="mb-2 text-2xl font-semibold text-center text-white">
           Generate Absentee Message
         </h2>
@@ -129,7 +129,7 @@ const GenerateMessage = () => {
             id="date"
             value={date}
             onChange={handleDateChange}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         {/* Gender dropdown */}
@@ -148,7 +148,7 @@ const GenerateMessage = () => {
               setShowCard(false);
             }}
             style={{ padding: "5px", margin: "10px 0" }}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="MALE">BOYS</option>
             <option value="FEMALE">GIRLS</option>
@@ -172,7 +172,7 @@ const GenerateMessage = () => {
               setShowCard(false);
             }}
             style={{ padding: "5px", margin: "10px 0" }}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="HOSTELLER">HOSTELLER</option>
@@ -196,7 +196,7 @@ const GenerateMessage = () => {
               setShowCard(false);
             }}
             style={{ padding: "5px", margin: "10px 0" }}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="II">Second Year</option>
@@ -221,7 +221,7 @@ const GenerateMessage = () => {
               setShowCard(false);
             }}
             style={{ padding: "5px", margin: "10px 0" }}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="AIML">ML</option>
@@ -245,13 +245,13 @@ const GenerateMessage = () => {
               setShowCard(false);
             }}
             style={{ padding: "5px", margin: "10px 0" }}
-            className="block w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="block px-3 py-2 mt-1 w-full text-white bg-gray-700 rounded-md border border-gray-500 shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="ALL">ALL</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
-            <option value="-">NA</option>
+            <option value="NIL">NIL</option>
           </select>
         </div>
 
@@ -261,13 +261,13 @@ const GenerateMessage = () => {
             handleDownload();
             toggleCardVisibility();
           }}
-          className="w-full px-4 py-2 mt-2 font-bold text-white transition duration-500 bg-blue-600 rounded-md shadow hover:scale-110 hover:bg-blue-700"
+          className="px-4 py-2 mt-2 w-full font-bold text-white bg-blue-600 rounded-md shadow transition duration-500 hover:scale-110 hover:bg-blue-700"
         >
           {isLoading ? "Generating Report..." : "Get Absent Students"}
         </button>
         <button
           onClick={() => navigate(-1)} // Replace with actual back navigation logic
-          className="w-full px-4 py-2 mt-4 font-bold text-white transition duration-500 bg-gray-600 rounded-md shadow hover:scale-110 hover:bg-gray-700"
+          className="px-4 py-2 mt-4 w-full font-bold text-white bg-gray-600 rounded-md shadow transition duration-500 hover:scale-110 hover:bg-gray-700"
         >
           Back
         </button>
@@ -278,7 +278,7 @@ const GenerateMessage = () => {
             details.length > 0 ||
             missingStudents.length > 0 ||
             errorMessage) && (
-            <div className="w-full p-6 mt-6 text-gray-200 bg-gray-700 rounded-lg shadow-lg">
+            <div className="p-6 mt-6 w-full text-gray-200 bg-gray-700 rounded-lg shadow-lg">
               <div id="cardContent">
                 {message && (
                   <p
@@ -290,7 +290,7 @@ const GenerateMessage = () => {
                 )}
 
                 {details.length > 0 && (
-                  <ul className="mt-2 space-y-2 text-white list-none">
+                  <ul className="mt-2 space-y-2 list-none text-white">
                     {details.map((detail, index) => (
                       <li key={index}>{detail}</li>
                     ))}

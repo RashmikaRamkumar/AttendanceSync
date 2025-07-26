@@ -255,7 +255,7 @@ function DutyPage() {
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
-              <option value="-">NA</option>
+              <option value="NIL">NIL</option>
             </select>
           </div>
         </div>
