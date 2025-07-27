@@ -79,7 +79,7 @@ const LeaveCountPage = () => {
 
   useEffect(() => {
     fetchStudentsWithLeaveCount();
-  }, []);
+  }, [filters]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,11 +87,6 @@ const LeaveCountPage = () => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    fetchStudentsWithLeaveCount();
   };
 
   // Group students by leave count for visual separation
@@ -111,10 +106,10 @@ const LeaveCountPage = () => {
       <div className="px-4 py-6 mx-4 mt-4 mb-10 w-auto max-w-4xl text-white rounded-2xl sm:mx-6 md:mx-auto bg-slate-800">
         <div className="mx-auto w-full">
           <h1 className="mb-8 text-2xl font-bold text-center md:text-3xl">
-            ON DUTY
+            Leave Count
           </h1>
 
-          <form onSubmit={handleSubmit} className="w-full">
+          <div className="w-full">
             <div className="grid grid-cols-1 gap-4 mb-6 sm:gap-6 sm:grid-cols-2 md:grid-cols-3">
               <div className="w-full">
                 <label
@@ -214,17 +209,7 @@ const LeaveCountPage = () => {
                 <Calendar className="ml-2 text-white" size={24} />
               </div>
             </div>
-
-            <div className="flex justify-center mt-6">
-              <button
-                type="submit"
-                className="flex justify-center items-center px-4 py-2 text-sm text-white bg-blue-600 rounded-md shadow transition duration-200 md:px-6 md:py-3 md:text-base hover:bg-blue-700"
-              >
-                <Filter className="mr-2" size={18} />
-                Apply Filters
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
       {/* Content section */}
