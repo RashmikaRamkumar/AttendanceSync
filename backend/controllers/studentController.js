@@ -171,17 +171,66 @@ exports.deleteStudentByRollNo = async (req, res) => {
 exports.bulkDeleteStudents = async (req, res) => {
   const { yearOfStudy, branch, section } = req.body;
 
+  console.log("Received bulk delete request:", {
+    yearOfStudy,
+    branch,
+    section,
+  });
+
   try {
-    // Validate required parameters
-    if (!yearOfStudy || !branch || !section) {
+    // Validate required parameters - only Year is required
+    if (!yearOfStudy) {
       return res.status(400).json({
         success: false,
-        message: "Year of Study, Branch, and Section are required",
+        message: "Year of Study is required",
       });
     }
 
-    // Create filter object
-    const filter = { yearOfStudy, branch, section };
+    // If Year is "All", no need to validate branch and section
+    if (yearOfStudy === "All") {
+      console.log("Year is 'All' - proceeding with deletion of all students");
+      console.log("Branch and Section validation skipped for Year='All'");
+    }
+
+    // Create filter object - optimized logic for all combinations
+    const filter = {};
+
+    // If Year is "All", delete all students (no need for branch/section)
+    if (yearOfStudy === "All") {
+      // Empty filter means delete all students
+      console.log("Deleting ALL students - no filters applied");
+    } else {
+      // Year is specific, add to filter
+      filter.yearOfStudy = yearOfStudy;
+
+      // If Branch is "All", delete all students of that year
+      if (branch === "All") {
+        console.log(`Deleting all students of year: ${yearOfStudy}`);
+      } else if (branch) {
+        // Branch is specific, add to filter
+        filter.branch = branch;
+
+        // If Section is "All", delete all students of that year+branch
+        if (section === "All") {
+          console.log(
+            `Deleting all students of year: ${yearOfStudy}, branch: ${branch}`
+          );
+        } else if (section) {
+          // Section is specific, add to filter
+          filter.section = section;
+          console.log(
+            `Deleting students of year: ${yearOfStudy}, branch: ${branch}, section: ${section}`
+          );
+        }
+      }
+    }
+
+    console.log("Final filter:", filter);
+
+    // Allow deletion with "All" options - this enables flexible deletion
+    // Users can delete all students, specific year + all branches + all sections, etc.
+
+    console.log("About to execute deleteMany with filter:", filter);
 
     // Delete students matching the criteria
     const result = await Student.deleteMany(filter);

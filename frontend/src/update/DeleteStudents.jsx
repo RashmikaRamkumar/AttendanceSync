@@ -125,13 +125,20 @@ function DeleteStudents() {
   };
 
   const handleBulkDelete = async () => {
-    if (!yearOfStudy || !branch || !section) {
+    // Optimized validation - only Year is required
+    if (!yearOfStudy) {
       setMessage({
-        text: "All fields are required for bulk delete.",
+        text: "Please select Year for bulk delete.",
         type: "error",
       });
       return;
     }
+
+    // All other combinations are valid:
+    // - Year="All" → Delete all students
+    // - Year="I", Branch="All" → Delete all I-year students
+    // - Year="I", Branch="CSE", Section="All" → Delete all I-CSE students
+    // - Year="I", Branch="CSE", Section="A" → Delete I-CSE-A students
 
     try {
       const res = await fetch(`${backendURL}/api/students/bulk-delete`, {
@@ -298,6 +305,7 @@ function DeleteStudents() {
                       <option value="">
                         {isLoadingClasses ? "Loading..." : "Select Year"}
                       </option>
+                      <option value="All">All Years</option>
                       {getUniqueYears().map((year) => (
                         <option key={year} value={year}>
                           {year}
@@ -313,12 +321,17 @@ function DeleteStudents() {
                     <select
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
-                      disabled={isLoadingClasses}
-                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
+                      disabled={isLoadingClasses || yearOfStudy === "All"}
+                      className={`px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+                        isLoadingClasses || yearOfStudy === "All"
+                          ? "bg-gray-200 cursor-not-allowed opacity-50"
+                          : ""
+                      }`}
                     >
                       <option value="">
                         {isLoadingClasses ? "Loading..." : "Select Branch"}
                       </option>
+                      <option value="All">All Branches</option>
                       {getUniqueBranches().map((branchOption) => (
                         <option key={branchOption} value={branchOption}>
                           {branchOption}
@@ -334,12 +347,23 @@ function DeleteStudents() {
                     <select
                       value={section}
                       onChange={(e) => setSection(e.target.value)}
-                      disabled={isLoadingClasses}
-                      className="px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:bg-gray-200"
+                      disabled={
+                        isLoadingClasses ||
+                        yearOfStudy === "All" ||
+                        branch === "All"
+                      }
+                      className={`px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+                        isLoadingClasses ||
+                        yearOfStudy === "All" ||
+                        branch === "All"
+                          ? "bg-gray-200 cursor-not-allowed opacity-50"
+                          : ""
+                      }`}
                     >
                       <option value="">
                         {isLoadingClasses ? "Loading..." : "Select Section"}
                       </option>
+                      <option value="All">All Sections</option>
                       {getUniqueSections().map((sectionOption) => (
                         <option key={sectionOption} value={sectionOption}>
                           {sectionOption}
@@ -352,9 +376,9 @@ function DeleteStudents() {
                 <div className="flex justify-end">
                   <button
                     onClick={handleBulkDelete}
-                    disabled={!yearOfStudy || !branch || !section}
+                    disabled={!yearOfStudy}
                     className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                      !yearOfStudy || !branch || !section
+                      !yearOfStudy
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-red-600 hover:bg-red-700"
                     }`}
