@@ -78,10 +78,10 @@ function HomePage({ toggleSidebar }) {
                 label="Update Data"
                 onClick={() => navigate("/update")}
               />
-              <ActionCard
+              {/* <ActionCard
                 label="Leave Count"
                 onClick={() => navigate("/leave-count")}
-              />
+              /> */}
               <ActionCard
                 label="Information Status"
                 onClick={() => navigate("/info-status")}
