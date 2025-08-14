@@ -41,6 +41,15 @@ const authRoutes = require("./routes/authRoutes");
 const uploadRoutes = require("./routes/uploadCsvRoutes");
 //const excelReportRoutes = require('./routes/excelReportRoutes');
 
+// Test route that responds with a message
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "AI Attendance Backend Server is running successfully! 🚀",
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+  });
+});
 app.use("/api/students", studentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/report", reportRoutes);
