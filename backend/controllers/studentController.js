@@ -383,6 +383,7 @@ exports.updateStudentData = async (req, res) => {
 
     // Validate update fields match the schema
     const allowedFields = [
+      "rollNo",
       "name",
       "hostellerDayScholar",
       "gender",
@@ -408,6 +409,19 @@ exports.updateStudentData = async (req, res) => {
         success: false,
         message: "No valid update fields provided",
       });
+    }
+
+    // If rollNo is being updated, check for duplicates
+    if (validUpdateData.rollNo && validUpdateData.rollNo !== rollNo) {
+      const existingStudent = await Student.findOne({
+        rollNo: validUpdateData.rollNo,
+      });
+      if (existingStudent) {
+        return res.status(400).json({
+          success: false,
+          message: "A student with this roll number already exists",
+        });
+      }
     }
 
     // Find the student by roll number and update their data
